@@ -8,5 +8,9 @@ package it.polimi.annotationsaggregator;
  *
  */
 public abstract class Annotation {
-	public abstract Annotation aggregateWith(Annotation rhs);
+	public final Annotator annotator;
+	
+	public Annotation(Annotator annotator){
+		this.annotator = annotator;
+	}
 }

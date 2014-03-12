@@ -17,4 +17,23 @@ public class Annotator {
 	public int getId(){
 		return id;
 	}
+
+	@Override
+	public int hashCode() {
+		return id;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Annotator))
+			return false;
+		Annotator other = (Annotator) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
 }
