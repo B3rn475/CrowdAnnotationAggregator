@@ -32,9 +32,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	
 	private final Hashtable<Annotator, Double> lastWeights = new Hashtable<Annotator, Double>();
 	
-	private final Hashtable<Content, Aggregator<A>> aggregators = new Hashtable<Content, Aggregator<A>>();
-	private final Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = new Hashtable<Annotator, CoherenceEstimator<A>>();
-	private final Hashtable<Content, A> finalAggregation = new Hashtable<Content, A>();
+	private final Hashtable<Content, Aggregator<A>> aggregators = null;
+	private final Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = null;
+	private final Hashtable<Content, A> finalAggregation = null;
 	
 	public AggregationManager(OnProcessListener<A> listener, AggregatorFactory<A> aggregatorFactory, CoherenceEstimatorFactory<A> estimatorFactory, double threshold, int maxIterations) {
 		if (listener == null)
@@ -73,11 +73,6 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		
 		//save last weights to test threshold
 		lastWeights.putAll(weights);
-		
-		//initializing aggregators
-		aggregators.clear();
-		finalAggregation.clear();
-		coherenceEstimators.clear();
 		
 		final Enumeration<Content> contents = annotations.keys();		
 		while(contents.hasMoreElements()){
@@ -206,7 +201,13 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		
 		if (countDown == 0){
 			isWorking = false;
-			listener.onAggregationEnded(this, finalAggregation);
+			@SuppressWarnings("unchecked")
+			Dictionary<Content, A> tmp = (Dictionary<Content, A>) finalAggregation.clone();
+			listener.onAggregationEnded(this, tmp);
+			aggregators.clear();
+			coherenceEstimators.clear();
+			finalAggregation.clear();
+			lastWeights.clear();
 		}
 	}
 	
