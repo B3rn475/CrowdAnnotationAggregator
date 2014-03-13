@@ -31,7 +31,7 @@ public final class BooleanAnnotation extends Annotation {
 	}
 	
 	public boolean getValue(){
-		return value > 0;
+		return value >= 0.0 ;
 	}
 
 }

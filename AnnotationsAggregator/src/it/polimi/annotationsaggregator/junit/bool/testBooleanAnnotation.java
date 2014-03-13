@@ -55,7 +55,7 @@ public class testBooleanAnnotation {
 		assertTrue("True Annotation is False", trueAnnotation.getValue());
 		
 		BooleanAnnotation zeroAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, 0);
-		assertFalse("Zero Annotation is True", zeroAnnotation.getValue());
+		assertTrue("Zero Annotation is False", zeroAnnotation.getValue());
 		
 		BooleanAnnotation falseAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, -1);
 		assertFalse("False Annotation is True", falseAnnotation.getValue());

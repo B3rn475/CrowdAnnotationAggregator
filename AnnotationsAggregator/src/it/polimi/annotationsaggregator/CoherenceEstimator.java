@@ -15,10 +15,16 @@ public abstract class CoherenceEstimator<A extends Annotation> implements Collec
 	protected final OnEstimationCompletedListener<A> listener;
 	private final Collection<Pair<A>> pairs;
 	
-	public CoherenceEstimator(OnEstimationCompletedListener<A> listener, Annotator annotator, Collection<Pair<A>> pairs){
+	public CoherenceEstimator(OnEstimationCompletedListener<A> listener, Annotator annotator, Collection<Pair<A>> container){
+		if (listener == null)
+			throw new NullPointerException("The listener cannot be null");
+		if (annotator == null)
+			throw new NullPointerException("The annotator cannot be null");
+		if (container == null)
+			throw new NullPointerException("The container cannot be null");
 		this.listener = listener;
 		this.annotator = annotator;
-		this.pairs = pairs;
+		this.pairs = container;
 	}
 	
 	public abstract void estimate();

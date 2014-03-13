@@ -2,6 +2,7 @@ package it.polimi.annotationsaggregator.bool;
 
 import java.util.Collection;
 import java.util.Dictionary;
+
 import it.polimi.annotationsaggregator.Aggregator;
 import it.polimi.annotationsaggregator.Annotator;
 import it.polimi.annotationsaggregator.Content;
@@ -22,7 +23,7 @@ public final class BooleanAggregator extends Aggregator<BooleanAnnotation> {
 			if (skip.equals(annotation.annotator)) continue;
 			Double weight = weights.get(annotation.annotator);
 			if (weight == null) continue;
-			total += total * weight;
+			total += annotation.value * weight;
 		}
 		postAggregate(skip, new BooleanAnnotation(content, skip, total));
 	}
