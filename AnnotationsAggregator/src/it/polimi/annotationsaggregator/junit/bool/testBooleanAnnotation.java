@@ -40,12 +40,10 @@ public class testBooleanAnnotation {
 	@Test
 	public void testBooleanAnnotationContentAnnotatorBoolean() {
 		BooleanAnnotation trueAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, true);
-		if (!trueAnnotation.getValue())
-			fail("True Annotation is False");
+		assertTrue("True Annotation is False", trueAnnotation.getValue());
 		
 		BooleanAnnotation falseAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, false);
-		if (falseAnnotation.getValue())
-			fail("False Annotation is True");
+		assertFalse("False Annotation is True", falseAnnotation.getValue());
 	}
 
 	/**
@@ -54,15 +52,13 @@ public class testBooleanAnnotation {
 	@Test
 	public void testBooleanAnnotationContentAnnotatorDouble() {
 		BooleanAnnotation trueAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, 1);
-		if (!trueAnnotation.getValue())
-			fail("True Annotation is False");
+		assertTrue("True Annotation is False", trueAnnotation.getValue());
 		
 		BooleanAnnotation zeroAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, 0);
-		if (zeroAnnotation.getValue())
-			fail("Zero Annotation is True");
+		assertFalse("Zero Annotation is True", zeroAnnotation.getValue());
+		
 		BooleanAnnotation falseAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, -1);
-		if (falseAnnotation.getValue())
-			fail("False Annotation is True");
+		assertFalse("False Annotation is True", falseAnnotation.getValue());
 	}
 
 }
