@@ -29,4 +29,6 @@ public class Content {
 			return false;
 		return true;
 	}
+	
+	public static final Content NONE = new Content(0);
 }

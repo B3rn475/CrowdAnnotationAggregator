@@ -15,6 +15,11 @@ public final class BooleanAnnotation extends Annotation {
 
 	public final double value;
 	
+	public BooleanAnnotation(Content content, Annotator annotator){
+		super(content, annotator);
+		value = 0;
+	}
+	
 	public BooleanAnnotation(Content content, Annotator annotator, boolean value) {
 		super(content, annotator);
 		this.value = value?1:-1;
