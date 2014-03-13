@@ -23,6 +23,10 @@ public abstract class CoherenceEstimator<A extends Annotation> implements Collec
 	
 	public abstract void estimate();
 	
+	protected void postEstimation(double weight){
+		listener.onEstimationCompleted(this, weight);
+	}
+	
 	public interface OnEstimationCompletedListener<A extends Annotation>{
 		public void onEstimationCompleted(CoherenceEstimator<A> sender, double weight);
 	}

@@ -6,10 +6,8 @@ package it.polimi.annotationsaggregator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Set;
 
 /**
  * @author b3rn475
@@ -33,7 +31,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 		this.annotations = container;
 	}
 
-	protected abstract void aggregate(Set<Annotator> skip,
+	protected abstract void aggregate(Annotator skip,
 			Dictionary<Annotator, Double> weights);
 
 	protected void postAggregate(Annotator annotator, A aggregatedAnnotation) {
@@ -63,16 +61,13 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 		isFinal = false;
 		countDown = annotations.size();
 		for (A annotation : annotations) {
-			Set<Annotator> skip = new HashSet<Annotator>();
-			skip.add(annotation.annotator);
-			aggregate(skip, weights);
+			aggregate(annotation.annotator, weights);
 		}
 	}
 
 	public void aggregateFinal(Dictionary<Annotator, Double> weights) {
 		isFinal = true;
-		Set<Annotator> skip = new HashSet<Annotator>();
-		aggregate(skip, weights);
+		aggregate(Annotator.NONE, weights);
 	}
 
 	public interface OnAggregationCompletedListener<A extends Annotation> {
