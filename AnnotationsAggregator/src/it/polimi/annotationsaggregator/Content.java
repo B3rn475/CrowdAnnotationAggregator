@@ -10,4 +10,23 @@ public class Content {
 	public int getId(){
 		return id;
 	}
+	
+	@Override
+	public int hashCode() {
+		return id;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Content))
+			return false;
+		Content other = (Content) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
 }

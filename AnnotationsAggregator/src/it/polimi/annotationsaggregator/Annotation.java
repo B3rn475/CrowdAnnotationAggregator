@@ -9,8 +9,10 @@ package it.polimi.annotationsaggregator;
  */
 public abstract class Annotation {
 	public final Annotator annotator;
+	public final Content content;
 	
-	public Annotation(Annotator annotator){
+	public Annotation(Content content, Annotator annotator){
+		this.content = content;
 		this.annotator = annotator;
 	}
 }
