@@ -32,8 +32,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	
 	private final Hashtable<Annotator, Double> lastWeights = new Hashtable<Annotator, Double>();
 	
-	private Hashtable<Content, Aggregator<A>> aggregators = new Hashtable<Content, Aggregator<A>>();
-	private Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = new Hashtable<Annotator, CoherenceEstimator<A>>();
+	private final Hashtable<Content, Aggregator<A>> aggregators = new Hashtable<Content, Aggregator<A>>();
+	private final Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = new Hashtable<Annotator, CoherenceEstimator<A>>();
+	private final Hashtable<Content, Annotation> finalAggregation = new Hashtable<Content, Annotation>();
 	
 	public AggregationManager(OnProcessListener<A> listener, AggregatorFactory<A> aggregatorFactory, CoherenceEstimatorFactory<A> estimatorFactory, double threshold, int maxIterations) {
 		this.listener = listener;
@@ -65,6 +66,8 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		
 		//initializing aggregators
 		aggregators.clear();
+		finalAggregation.clear();
+		coherenceEstimators.clear();
 		
 		final Enumeration<Content> contents = annotations.keys();		
 		while(contents.hasMoreElements()){
@@ -121,8 +124,7 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 			}
 		}
 		
-		isWorking = false;
-		listener.onAggregationEnded(this);
+		startFinalAggregation();
 	}
 
 	private void normalizeWeights(){
@@ -153,6 +155,15 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		return delta;
 	}
 
+	public void startFinalAggregation(){
+		countDown = annotations.size();
+		final Enumeration<Content> contents = annotations.keys();		
+		while(contents.hasMoreElements()){
+			final Aggregator<A> aggregator = aggregators.get(contents.nextElement());
+			aggregator.aggregateFinal(weights);
+		}
+	}
+	
 	@Override
 	public void onAggregationCompleted(Aggregator<A> sender, Collection<Pair<A>> aggregatedAnnotations) {
 		countDown--;
@@ -175,6 +186,18 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		
 		if (countDown == 0){
 			testCompletion();
+		}
+	}
+	
+	@Override
+	public void onFinalAggregationCompleted(Aggregator<A> sender,
+			A aggregatedAnnotation) {
+		countDown--;
+		finalAggregation.put(aggregatedAnnotation.content,aggregatedAnnotation);
+		
+		if (countDown == 0){
+			isWorking = false;
+			listener.onAggregationEnded(this);
 		}
 	}
 	

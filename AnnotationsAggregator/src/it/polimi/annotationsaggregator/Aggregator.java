@@ -3,32 +3,84 @@
  */
 package it.polimi.annotationsaggregator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @author b3rn475
- *
+ * 
  */
 public abstract class Aggregator<A extends Annotation> implements Collection<A> {
 	public final Content content;
-	
+
 	protected final OnAggregationCompletedListener<A> listener;
-	
+
 	private final Collection<A> annotations;
-	
-	
-	protected Aggregator(OnAggregationCompletedListener<A> listener, Content content, Collection<A> container){
+
+	private boolean isFinal = false;
+	private long countDown = 0;
+	private final Dictionary<Annotator, A> estimated = new Hashtable<Annotator, A>();
+
+	protected Aggregator(OnAggregationCompletedListener<A> listener,
+			Content content, Collection<A> container) {
 		this.listener = listener;
 		this.content = content;
 		this.annotations = container;
 	}
-	
-	public abstract void aggregate(Dictionary<Annotator, Double> weights);
-	
-	public interface OnAggregationCompletedListener<A extends Annotation>{
-		public void onAggregationCompleted(Aggregator<A> sender, Collection<Pair<A>> aggregatedAnnotations);
+
+	protected abstract void aggregate(Set<Annotator> skip,
+			Dictionary<Annotator, Double> weights);
+
+	protected void postAggregate(Annotator annotator, A aggregatedAnnotation) {
+		if (isFinal) {
+			listener.onFinalAggregationCompleted(this, aggregatedAnnotation);
+		} else {
+			countDown--;
+			estimated.put(annotator, aggregatedAnnotation);
+
+			if (countDown == 0) {
+				fire();
+			}
+		}
+	}
+
+	private void fire() {
+		Collection<Pair<A>> aggregatedAnnotations = new ArrayList<Pair<A>>(
+				annotations.size());
+		for (A annotation : annotations) {
+			aggregatedAnnotations.add(new Pair<A>(annotation, estimated
+					.get(annotation.annotator)));
+		}
+		listener.onAggregationCompleted(this, aggregatedAnnotations);
+	}
+
+	public void aggregate(Dictionary<Annotator, Double> weights) {
+		isFinal = false;
+		countDown = annotations.size();
+		for (A annotation : annotations) {
+			Set<Annotator> skip = new HashSet<Annotator>();
+			skip.add(annotation.annotator);
+			aggregate(skip, weights);
+		}
+	}
+
+	public void aggregateFinal(Dictionary<Annotator, Double> weights) {
+		isFinal = true;
+		Set<Annotator> skip = new HashSet<Annotator>();
+		aggregate(skip, weights);
+	}
+
+	public interface OnAggregationCompletedListener<A extends Annotation> {
+		public void onAggregationCompleted(Aggregator<A> sender,
+				Collection<Pair<A>> aggregatedAnnotations);
+
+		public void onFinalAggregationCompleted(Aggregator<A> sender,
+				A aggregatedAnnotation);
 	}
 
 	@Override

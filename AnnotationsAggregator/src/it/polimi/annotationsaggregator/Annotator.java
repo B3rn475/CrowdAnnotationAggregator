@@ -36,4 +36,7 @@ public class Annotator {
 			return false;
 		return true;
 	}
+	
+	
+	public final static Annotator NONE = new Annotator(0);
 }
