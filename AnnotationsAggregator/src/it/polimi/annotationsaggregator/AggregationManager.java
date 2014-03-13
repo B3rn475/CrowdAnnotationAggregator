@@ -34,9 +34,19 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	
 	private final Hashtable<Content, Aggregator<A>> aggregators = new Hashtable<Content, Aggregator<A>>();
 	private final Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = new Hashtable<Annotator, CoherenceEstimator<A>>();
-	private final Hashtable<Content, Annotation> finalAggregation = new Hashtable<Content, Annotation>();
+	private final Hashtable<Content, A> finalAggregation = new Hashtable<Content, A>();
 	
 	public AggregationManager(OnProcessListener<A> listener, AggregatorFactory<A> aggregatorFactory, CoherenceEstimatorFactory<A> estimatorFactory, double threshold, int maxIterations) {
+		if (listener == null)
+			throw new IllegalArgumentException("Listener cannot be null");
+		if (aggregatorFactory == null)
+			throw new IllegalArgumentException("aggregatorFactory cannot be null");
+		if (estimatorFactory == null)
+			throw new IllegalArgumentException("estimatorFactory cannot be null");
+		if (threshold < 0)
+			throw new IllegalArgumentException("threshold cannot be less than 0");
+		if (maxIterations < 1)
+			throw new IllegalArgumentException("threshold cannot be less than 1");
 		this.listener = listener;
 		this.aggregatorFactory = aggregatorFactory;
 		this.estimatorFactory = estimatorFactory;
@@ -87,8 +97,7 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	}
 	
 	private void nextStep(){
-		if (listener != null)
-			listener.onStepInitiated(step);
+		listener.onStepInitiated(this, step);
 		step++;
 		
 		startAggregation();
@@ -155,7 +164,7 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		return delta;
 	}
 
-	public void startFinalAggregation(){
+	private void startFinalAggregation(){
 		countDown = annotations.size();
 		final Enumeration<Content> contents = annotations.keys();		
 		while(contents.hasMoreElements()){
@@ -197,12 +206,12 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		
 		if (countDown == 0){
 			isWorking = false;
-			listener.onAggregationEnded(this);
+			listener.onAggregationEnded(this, finalAggregation);
 		}
 	}
 	
 	public interface OnProcessListener<A extends Annotation>{
-		public void onStepInitiated(int step);
-		public void onAggregationEnded(AggregationManager<A> sender);
+		public void onStepInitiated(AggregationManager<A> sender,int step);
+		public void onAggregationEnded(AggregationManager<A> sender, Dictionary<Content, A> aggregatedAnnotations);
 	}
 }

@@ -6,6 +6,10 @@ public class Pair<L> {
 	public final L estimation;
 
 	public Pair(L annotation, L estimation) {
+		if (annotation == null)
+			throw new IllegalArgumentException("annotation cannot be null");
+		if (estimation == null)
+			throw new IllegalArgumentException("estimation cannot be null");
 		this.annotation = annotation;
 		this.estimation = estimation;
 	}

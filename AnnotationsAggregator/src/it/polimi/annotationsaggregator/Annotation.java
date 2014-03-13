@@ -13,9 +13,9 @@ public abstract class Annotation {
 	
 	public Annotation(Content content, Annotator annotator){
 		if (content == null)
-			throw new NullPointerException("Content cannot be null");
+			throw new IllegalArgumentException("Content cannot be null");
 		if (annotator == null)
-			throw new NullPointerException("Annotator cannot be null");
+			throw new IllegalArgumentException("Annotator cannot be null");
 		this.content = content;
 		this.annotator = annotator;
 	}

@@ -20,7 +20,7 @@ public class testBooleanAnnotation {
 	 * Test method for {@link it.polimi.annotationsaggregator.bool.BooleanAnnotation#BooleanAnnotation(it.polimi.annotationsaggregator.Content, it.polimi.annotationsaggregator.Annotator)}.
 	 * Invalid Content
 	 */
-	@Test(expected=NullPointerException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void testBooleanAnnotationNullContent() {
 		new BooleanAnnotation(null, Annotator.NONE);
 	}
@@ -29,7 +29,7 @@ public class testBooleanAnnotation {
 	 * Test method for {@link it.polimi.annotationsaggregator.bool.BooleanAnnotation#BooleanAnnotation(it.polimi.annotationsaggregator.Content, it.polimi.annotationsaggregator.Annotator)}.
 	 * Invalid Annotator
 	 */
-	@Test(expected=NullPointerException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void testBooleanAnnotationNullAnnotator() {
 		new BooleanAnnotation(Content.NONE, null);
 	}

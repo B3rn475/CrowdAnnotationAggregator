@@ -17,11 +17,11 @@ public abstract class CoherenceEstimator<A extends Annotation> implements Collec
 	
 	public CoherenceEstimator(OnEstimationCompletedListener<A> listener, Annotator annotator, Collection<Pair<A>> container){
 		if (listener == null)
-			throw new NullPointerException("The listener cannot be null");
+			throw new IllegalArgumentException("The listener cannot be null");
 		if (annotator == null)
-			throw new NullPointerException("The annotator cannot be null");
+			throw new IllegalArgumentException("The annotator cannot be null");
 		if (container == null)
-			throw new NullPointerException("The container cannot be null");
+			throw new IllegalArgumentException("The container cannot be null");
 		this.listener = listener;
 		this.annotator = annotator;
 		this.pairs = container;

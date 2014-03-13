@@ -49,7 +49,7 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 	/**
 	 * Test method for {@link it.polimi.annotationsaggregator.bool.BooleanFactory#buildAggregator(it.polimi.annotationsaggregator.Content)}.
 	 */
-	@Test(expected=NullPointerException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void testBooleanFactorybuildAggregatorNullListener() {
 		factory.buildAggregator(null, Content.NONE);
 	}
@@ -57,7 +57,7 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 	/**
 	 * Test method for {@link it.polimi.annotationsaggregator.bool.BooleanFactory#buildAggregator(it.polimi.annotationsaggregator.Content)}.
 	 */
-	@Test(expected=NullPointerException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void testBooleanFactorybuildAggregatorNullContent() {
 		factory.buildAggregator(this, null);
 	}
@@ -124,7 +124,7 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 	/**
 	 * Test method for {@link it.polimi.annotationsaggregator.bool.BooleanFactory#buildEstimator}.
 	 */
-	@Test(expected=NullPointerException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void testBooleanFactorybuildEstimatorNullListener() {
 		factory.buildEstimator(null, Annotator.NONE);
 	}
@@ -132,7 +132,7 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 	/**
 	 * Test method for {@link it.polimi.annotationsaggregator.bool.BooleanFactory#buildEstimator}.
 	 */
-	@Test(expected=NullPointerException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void testBooleanFactorybuildEstimatorNullContent() {
 		factory.buildEstimator(this, null);
 	}

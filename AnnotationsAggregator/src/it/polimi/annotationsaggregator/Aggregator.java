@@ -27,11 +27,11 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	protected Aggregator(OnAggregationCompletedListener<A> listener,
 			Content content, Collection<A> container) {
 		if (listener == null)
-			throw new NullPointerException("The listener cannot be null");
+			throw new IllegalArgumentException("The listener cannot be null");
 		if (content == null)
-			throw new NullPointerException("The content cannot be null");
+			throw new IllegalArgumentException("The content cannot be null");
 		if (container == null)
-			throw new NullPointerException("The container cannot be null");
+			throw new IllegalArgumentException("The container cannot be null");
 		this.listener = listener;
 		this.content = content;
 		this.annotations = container;
