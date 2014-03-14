@@ -16,7 +16,7 @@ public final class BooleanAggregator extends LinearAggregator<BooleanAnnotation>
 	}
 
 	@Override
-	protected void sumAllAnnotations(Dictionary<Annotator, Double> weights) {
+	protected final void sumAllAnnotations(Dictionary<Annotator, Double> weights) {
 		double total = 0;
 		for (BooleanAnnotation annotation : this){
 			total += annotation.value * weights.get(annotation.annotator);
@@ -25,7 +25,7 @@ public final class BooleanAggregator extends LinearAggregator<BooleanAnnotation>
 	}
 
 	@Override
-	protected void subtractAnnotation(BooleanAnnotation aggregatedAnnotation,
+	protected final void subtractAnnotation(BooleanAnnotation aggregatedAnnotation,
 			BooleanAnnotation annotation, double weight) {
 		postSubtractAnnotation(new BooleanAnnotation(content, annotation.annotator, aggregatedAnnotation.value - annotation.value * weight));
 	}

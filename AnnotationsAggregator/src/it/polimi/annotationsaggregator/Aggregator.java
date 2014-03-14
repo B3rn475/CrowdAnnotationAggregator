@@ -65,7 +65,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 		postEndingAggregation();
 	}
 	
-	protected void postInitializingAggregation(Dictionary<Annotator, Double> weights){
+	protected final void postInitializingAggregation(Dictionary<Annotator, Double> weights){
 		estimated.clear();
 		if (isFinal)
 		{
@@ -79,7 +79,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 		}
 	}
 	
-	protected void postEndingAggregation(){
+	protected final void postEndingAggregation(){
 		if (isFinal) {
 			listener.onFinalAggregationCompleted(this, estimated.get(Annotator.NONE));
 		} else {
@@ -98,7 +98,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	 * @param annotator skipped annotator
 	 * @param aggregatedAnnotation Aggregated annotation output of the process
 	 */
-	protected void postAggregate(Annotator annotator, A aggregatedAnnotation) {
+	protected final void postAggregate(Annotator annotator, A aggregatedAnnotation) {
 		countDown--;
 
 		estimated.put(annotator, aggregatedAnnotation);
@@ -112,7 +112,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	 * Request the aggregation the current annotations
 	 * @param weights
 	 */
-	public void aggregate(Dictionary<Annotator, Double> weights) {
+	public final void aggregate(Dictionary<Annotator, Double> weights) {
 		isFinal = false;
 		initializingAggregation(weights);
 	}
@@ -121,7 +121,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	 * Request the final aggregation based on all the annotations
 	 * @param weights
 	 */
-	public void aggregateFinal(Dictionary<Annotator, Double> weights) {
+	public final void aggregateFinal(Dictionary<Annotator, Double> weights) {
 		isFinal = true;
 		initializingAggregation(weights);
 	}

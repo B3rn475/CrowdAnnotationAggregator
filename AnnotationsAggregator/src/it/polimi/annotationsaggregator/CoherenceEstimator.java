@@ -49,7 +49,7 @@ public abstract class CoherenceEstimator<A extends Annotation> implements Collec
 	 * This method must be called by derived classes at the end on the estimation
 	 * @param weight
 	 */
-	protected void postEstimation(double weight){
+	protected final void postEstimation(double weight){
 		listener.onEstimationCompleted(this, weight);
 	}
 	

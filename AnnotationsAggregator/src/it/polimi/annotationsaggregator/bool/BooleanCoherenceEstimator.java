@@ -7,13 +7,14 @@ import java.util.Collection;
 
 import it.polimi.annotationsaggregator.Annotator;
 import it.polimi.annotationsaggregator.CoherenceEstimator;
+import it.polimi.annotationsaggregator.LinearCoherenceEstimator;
 import it.polimi.annotationsaggregator.Pair;
 
 /**
  * @author b3rn475
  *
  */
-public final class BooleanCoherenceEstimator extends CoherenceEstimator<BooleanAnnotation> {
+public final class BooleanCoherenceEstimator extends LinearCoherenceEstimator<BooleanAnnotation> {
 
 	public BooleanCoherenceEstimator(
 			it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener<BooleanAnnotation> listener,
@@ -23,12 +24,8 @@ public final class BooleanCoherenceEstimator extends CoherenceEstimator<BooleanA
 	}
 
 	@Override
-	public void estimate() {
-		double total = 0;
-		for (Pair<BooleanAnnotation> pair : this){
-			total += pair.annotation.value * pair.estimation.value;
-		}
-		postEstimation(total);
+	protected final void comparePair(Pair<BooleanAnnotation> pair) {
+		postCamparePair(pair.annotation.value * pair.estimation.value);
 	}
 
 }
