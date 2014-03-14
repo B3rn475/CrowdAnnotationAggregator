@@ -24,7 +24,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 
 	private boolean isFinal = false;
 	private long countDown = 0;
-	private final Dictionary<Annotator, A> estimated = new Hashtable<Annotator, A>();
+	private final Hashtable<Annotator, A> estimated = new Hashtable<Annotator, A>();
 
 	/**
 	 * Build a new aggregator
@@ -58,35 +58,54 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	protected abstract void aggregate(Annotator skip,
 			Dictionary<Annotator, Double> weights);
 
+	protected void initializingAggregation(Dictionary<Annotator, Double> weights) {
+		postInitializingAggregation(weights);
+	}
+	protected void endingAggregation(){
+		postEndingAggregation();
+	}
+	
+	protected void postInitializingAggregation(Dictionary<Annotator, Double> weights){
+		estimated.clear();
+		if (isFinal)
+		{
+			countDown = 1;
+			aggregate(Annotator.NONE, weights);
+		} else {
+			countDown = annotations.size();
+			for (A annotation : annotations) {
+				aggregate(annotation.annotator, weights);
+			}
+		}
+	}
+	
+	protected void postEndingAggregation(){
+		if (isFinal) {
+			listener.onFinalAggregationCompleted(this, estimated.get(Annotator.NONE));
+		} else {
+			Collection<Pair<A>> aggregatedAnnotations = new ArrayList<Pair<A>>(
+					annotations.size());
+			for (A annotation : annotations) {
+				aggregatedAnnotations.add(new Pair<A>(annotation, estimated
+						.get(annotation.annotator)));
+			}
+			listener.onAggregationCompleted(this, aggregatedAnnotations);
+		}
+	}
+	
 	/**
 	 * Method to call at the end of each aggregation request
 	 * @param annotator skipped annotator
 	 * @param aggregatedAnnotation Aggregated annotation output of the process
 	 */
 	protected void postAggregate(Annotator annotator, A aggregatedAnnotation) {
-		if (isFinal) {
-			listener.onFinalAggregationCompleted(this, aggregatedAnnotation);
-		} else {
-			countDown--;
-			estimated.put(annotator, aggregatedAnnotation);
+		countDown--;
 
-			if (countDown == 0) {
-				fire();
-			}
+		estimated.put(annotator, aggregatedAnnotation);
+		
+		if (countDown == 0) {
+			endingAggregation();
 		}
-	}
-
-	/**
-	 * Fire the end event
-	 */
-	private void fire() {
-		Collection<Pair<A>> aggregatedAnnotations = new ArrayList<Pair<A>>(
-				annotations.size());
-		for (A annotation : annotations) {
-			aggregatedAnnotations.add(new Pair<A>(annotation, estimated
-					.get(annotation.annotator)));
-		}
-		listener.onAggregationCompleted(this, aggregatedAnnotations);
 	}
 
 	/**
@@ -95,10 +114,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	 */
 	public void aggregate(Dictionary<Annotator, Double> weights) {
 		isFinal = false;
-		countDown = annotations.size();
-		for (A annotation : annotations) {
-			aggregate(annotation.annotator, weights);
-		}
+		initializingAggregation(weights);
 	}
 
 	/**
@@ -107,7 +123,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	 */
 	public void aggregateFinal(Dictionary<Annotator, Double> weights) {
 		isFinal = true;
-		aggregate(Annotator.NONE, weights);
+		initializingAggregation(weights);
 	}
 
 	/**

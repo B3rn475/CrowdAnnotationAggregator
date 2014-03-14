@@ -3,11 +3,11 @@ package it.polimi.annotationsaggregator.bool;
 import java.util.Collection;
 import java.util.Dictionary;
 
-import it.polimi.annotationsaggregator.Aggregator;
 import it.polimi.annotationsaggregator.Annotator;
 import it.polimi.annotationsaggregator.Content;
+import it.polimi.annotationsaggregator.LinearAggregator;
 
-public final class BooleanAggregator extends Aggregator<BooleanAnnotation> {
+public final class BooleanAggregator extends LinearAggregator<BooleanAnnotation> {
 	
 	public BooleanAggregator(
 			it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener<BooleanAnnotation> listener,
@@ -16,16 +16,17 @@ public final class BooleanAggregator extends Aggregator<BooleanAnnotation> {
 	}
 
 	@Override
-	protected void aggregate(Annotator skip,
-			Dictionary<Annotator, Double> weights) {
+	protected void sumAllAnnotations(Dictionary<Annotator, Double> weights) {
 		double total = 0;
 		for (BooleanAnnotation annotation : this){
-			if (skip.equals(annotation.annotator)) continue;
-			Double weight = weights.get(annotation.annotator);
-			if (weight == null) continue;
-			total += annotation.value * weight;
+			total += annotation.value * weights.get(annotation.annotator);
 		}
-		postAggregate(skip, new BooleanAnnotation(content, skip, total));
+		postSumAllAnnotations(weights, new BooleanAnnotation(content, Annotator.NONE, total));
 	}
 
+	@Override
+	protected void subtractAnnotation(BooleanAnnotation aggregatedAnnotation,
+			BooleanAnnotation annotation, double weight) {
+		postSubtractAnnotation(new BooleanAnnotation(content, annotation.annotator, aggregatedAnnotation.value - annotation.value * weight));
+	}
 }
