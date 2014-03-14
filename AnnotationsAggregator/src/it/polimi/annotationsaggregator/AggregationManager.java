@@ -32,9 +32,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	
 	private final Hashtable<Annotator, Double> lastWeights = new Hashtable<Annotator, Double>();
 	
-	private final Hashtable<Content, Aggregator<A>> aggregators = null;
-	private final Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = null;
-	private final Hashtable<Content, A> finalAggregation = null;
+	private final Hashtable<Content, Aggregator<A>> aggregators = new Hashtable<Content, Aggregator<A>>();
+	private final Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = new Hashtable<Annotator, CoherenceEstimator<A>>();
+	private final Hashtable<Content, A> finalAggregation = new Hashtable<Content, A>();
 	
 	public AggregationManager(OnProcessListener<A> listener, AggregatorFactory<A> aggregatorFactory, CoherenceEstimatorFactory<A> estimatorFactory, double threshold, int maxIterations) {
 		if (listener == null)
