@@ -127,7 +127,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	@Override
 	public boolean add(A e) {
 		if (!e.content.equals(content))
-			throw new IllegalArgumentException("The annotation must be of the same content of the annotator");
+			throw new IllegalArgumentException("The annotation must be of the same content of the Aggregator");
 		return annotations.add(e);
 	}
 
@@ -135,7 +135,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	public boolean addAll(Collection<? extends A> c) {
 		for (Annotation a : c){
 			if (!a.content.equals(content))
-				throw new IllegalArgumentException("The annotation must be of the same content of the annotator");
+				throw new IllegalArgumentException("The annotation must be of the same content of the Aggregator");
 		}
 		return annotations.addAll(c);
 	}
