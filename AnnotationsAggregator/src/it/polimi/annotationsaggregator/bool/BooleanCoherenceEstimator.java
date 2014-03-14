@@ -6,7 +6,6 @@ package it.polimi.annotationsaggregator.bool;
 import java.util.Collection;
 
 import it.polimi.annotationsaggregator.Annotator;
-import it.polimi.annotationsaggregator.CoherenceEstimator;
 import it.polimi.annotationsaggregator.LinearCoherenceEstimator;
 import it.polimi.annotationsaggregator.Pair;
 
