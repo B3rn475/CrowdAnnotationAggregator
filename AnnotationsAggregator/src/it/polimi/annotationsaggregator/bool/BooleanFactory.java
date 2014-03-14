@@ -4,6 +4,7 @@
 package it.polimi.annotationsaggregator.bool;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import it.polimi.annotationsaggregator.Aggregator;
 import it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener;
@@ -13,8 +14,6 @@ import it.polimi.annotationsaggregator.CoherenceEstimator;
 import it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener;
 import it.polimi.annotationsaggregator.CoherenceEstimatorFactory;
 import it.polimi.annotationsaggregator.Content;
-import it.polimi.annotationsaggregator.Pair;
-
 /**
  * @author b3rn475
  *
@@ -25,7 +24,7 @@ public final class BooleanFactory implements BaseAggregatorFactory<BooleanAnnota
 	@Override
 	public CoherenceEstimator<BooleanAnnotation> buildEstimator(
 			OnEstimationCompletedListener<BooleanAnnotation> manager, Annotator annotator) {
-		return new BooleanCoherenceEstimator(manager, annotator, new ArrayList<Pair<BooleanAnnotation>>());
+		return new BooleanCoherenceEstimator(manager, annotator, new HashMap<BooleanAnnotation,BooleanAnnotation>());
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package it.polimi.annotationsaggregator.bool;
 
 import java.util.Collection;
-import java.util.Dictionary;
+import java.util.Map;
 
 import it.polimi.annotationsaggregator.Annotator;
 import it.polimi.annotationsaggregator.BaseLinearAggregator;
@@ -16,10 +16,10 @@ public final class BooleanAggregator extends BaseLinearAggregator<BooleanAnnotat
 	}
 
 	@Override
-	protected final void sumAllAnnotations(Dictionary<Annotator, Double> weights) {
+	protected final void sumAllAnnotations(Map<BooleanAnnotation, Double> weights) {
 		double total = 0;
 		for (BooleanAnnotation annotation : this){
-			total += annotation.value * weights.get(annotation.annotator);
+			total += annotation.value * weights.get(annotation);
 		}
 		postSumAllAnnotations(weights, new BooleanAnnotation(content, Annotator.NONE, total));
 	}

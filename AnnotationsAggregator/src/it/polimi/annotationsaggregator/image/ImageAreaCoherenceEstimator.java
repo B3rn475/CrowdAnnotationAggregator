@@ -3,11 +3,10 @@
  */
 package it.polimi.annotationsaggregator.image;
 
-import java.util.Collection;
+import java.util.Map;
 
 import it.polimi.annotationsaggregator.Annotator;
 import it.polimi.annotationsaggregator.LinearCoherenceEstimator;
-import it.polimi.annotationsaggregator.Pair;
 
 /**
  * @author B3rn475
@@ -17,26 +16,26 @@ public final class ImageAreaCoherenceEstimator extends LinearCoherenceEstimator<
 
 	public ImageAreaCoherenceEstimator(
 			it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener<ImageAreaAnnotation> listener,
-			Annotator annotator, Collection<Pair<ImageAreaAnnotation>> container) {
+			Annotator annotator, Map<ImageAreaAnnotation, ImageAreaAnnotation> container) {
 		super(listener, annotator, container);
 	}
 
 	@Override
-	protected void comparePair(Pair<ImageAreaAnnotation> pair) {
+	protected void comparePair(final ImageAreaAnnotation annotation, final ImageAreaAnnotation estimation) {
 		int unionArea = 0;
 		int intersectionArea = 0;
-		int length = pair.annotation.content.width * pair.annotation.content.height;
+		final int length = annotation.content.width * annotation.content.height;
 		for (int i = 0; i < length; i++){
-			if (pair.annotation.getPixelValue(i) && pair.estimation.getPixelValue(i)){
+			if (annotation.getPixelValue(i) && estimation.getPixelValue(i)){
 				intersectionArea++;
 			}
-			if (pair.annotation.getPixelValue(i) || pair.estimation.getPixelValue(i)){
+			if (annotation.getPixelValue(i) || estimation.getPixelValue(i)){
 				unionArea++;
 			}
 		}
 		final double dIntersectionArea = intersectionArea;
 		final double dUnionArea = unionArea;
-		postCamparePair(dIntersectionArea / dUnionArea);
+		postCamparePair(annotation, dIntersectionArea / dUnionArea);
 	}
 
 }

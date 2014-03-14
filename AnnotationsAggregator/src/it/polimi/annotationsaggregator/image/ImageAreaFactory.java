@@ -3,7 +3,7 @@
  */
 package it.polimi.annotationsaggregator.image;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import it.polimi.annotationsaggregator.Aggregator;
 import it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener;
@@ -13,7 +13,6 @@ import it.polimi.annotationsaggregator.CoherenceEstimator;
 import it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener;
 import it.polimi.annotationsaggregator.CoherenceEstimatorFactory;
 import it.polimi.annotationsaggregator.Content;
-import it.polimi.annotationsaggregator.Pair;
 
 /**
  * @author B3rn475
@@ -39,7 +38,7 @@ public final class ImageAreaFactory implements CoherenceEstimatorFactory<ImageAr
 	public CoherenceEstimator<ImageAreaAnnotation> buildEstimator(
 			OnEstimationCompletedListener<ImageAreaAnnotation> listener,
 			Annotator annotator) {
-		return new ImageAreaCoherenceEstimator(listener, annotator, new ArrayList<Pair<ImageAreaAnnotation>>());
+		return new ImageAreaCoherenceEstimator(listener, annotator, new HashMap<ImageAreaAnnotation, ImageAreaAnnotation>());
 	}
 
 }

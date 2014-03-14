@@ -2,8 +2,7 @@ package it.polimi.annotationsaggregator.junit.bool;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Dictionary;
+import java.util.Map;
 
 import it.polimi.annotationsaggregator.AggregationManager;
 import it.polimi.annotationsaggregator.Annotator;
@@ -34,14 +33,14 @@ public class testBooleanAggregationManager implements OnBaseProcessListener<Bool
 			contents[k] = new Content(k+1);
 		}
 		
+		double weight = 1.0 / annotators.length / contents.length;
+		
 		for (int i=0; i < annotators.length; i++){
 			annotators[i] = new Annotator(i+1);
-			manager.getWeights().put(annotators[i], 1.0/annotators.length);
-			ArrayList<BooleanAnnotation> annotations = new ArrayList<BooleanAnnotation>();
-			boolean value = i < annotatorsNumber / 2;
+			boolean value = i < annotatorsNumber / 2 + 1;
 			for (int k=0; k < contents.length; k++){
+				manager.put(new BooleanAnnotation(contents[k], annotators[i], value),weight);
 				value = !value;
-				annotations.add(new BooleanAnnotation(contents[k], annotators[i], value));
 			}
 		}
 	}
@@ -64,7 +63,7 @@ public class testBooleanAggregationManager implements OnBaseProcessListener<Bool
 	}
 
 	@Override
-	public void onAggregationEnded(AggregationManager<BooleanAnnotation, Content> sender, Dictionary<Content, BooleanAnnotation> aggregatedAnnotations) {
+	public void onAggregationEnded(AggregationManager<BooleanAnnotation, Content> sender, Map<Content, BooleanAnnotation> aggregatedAnnotations) {
 		boolean value = true;
 		for (int k=0; k < contents.length; k++){
 			assertEquals("Estimation Error", value, aggregatedAnnotations.get(contents[k]).getValue());

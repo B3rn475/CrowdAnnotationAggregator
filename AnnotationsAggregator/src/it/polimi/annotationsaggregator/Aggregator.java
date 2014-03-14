@@ -3,11 +3,11 @@
  */
 package it.polimi.annotationsaggregator;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Aggregator class that allow to aggregate annotations.
@@ -56,23 +56,21 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * @param weights weights to use the process
 	 */
 	protected abstract void aggregate(Annotator skip,
-			Dictionary<Annotator, Double> weights);
+			Map<A, Double> weights);
 
-	protected void initializingAggregation(Dictionary<Annotator, Double> weights) {
+	protected void initializingAggregation(Map<A, Double> weights) {
 		postInitializingAggregation(weights);
 	}
 	protected void endingAggregation(){
 		postEndingAggregation();
 	}
 	
-	protected final void postInitializingAggregation(Dictionary<Annotator, Double> weights){
+	protected final void postInitializingAggregation(Map<A, Double> weights){
 		estimated.clear();
 		if (isFinal)
 		{
-			countDown = 1;
 			aggregate(Annotator.NONE, weights);
 		} else {
-			countDown = annotations.size();
 			for (A annotation : annotations) {
 				aggregate(annotation.annotator, weights);
 			}
@@ -83,11 +81,9 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 		if (isFinal) {
 			listener.onFinalAggregationCompleted(this, estimated.get(Annotator.NONE));
 		} else {
-			Collection<Pair<A>> aggregatedAnnotations = new ArrayList<Pair<A>>(
-					annotations.size());
+			HashMap<A, A> aggregatedAnnotations = new HashMap<A,A>();
 			for (A annotation : annotations) {
-				aggregatedAnnotations.add(new Pair<A>(annotation, estimated
-						.get(annotation.annotator)));
+				aggregatedAnnotations.put(annotation, estimated.get(annotation.annotator));
 			}
 			listener.onAggregationCompleted(this, aggregatedAnnotations);
 		}
@@ -112,8 +108,9 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * Request the aggregation the current annotations
 	 * @param weights
 	 */
-	public final void aggregate(Dictionary<Annotator, Double> weights) {
+	public final void aggregate(Map<A, Double> weights) {
 		isFinal = false;
+		countDown = annotations.size();
 		initializingAggregation(weights);
 	}
 
@@ -121,8 +118,9 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * Request the final aggregation based on all the annotations
 	 * @param weights
 	 */
-	public final void aggregateFinal(Dictionary<Annotator, Double> weights) {
+	public final void aggregateFinal(Map<A, Double> weights) {
 		isFinal = true;
+		countDown = 1;
 		initializingAggregation(weights);
 	}
 
@@ -134,7 +132,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 */
 	public interface OnAggregationCompletedListener<A extends Annotation<C, ?>, C extends Content> {
 		public void onAggregationCompleted(Aggregator<A,C> sender,
-				Collection<Pair<A>> aggregatedAnnotations);
+				Map<A,A> aggregatedAnnotations);
 
 		public void onFinalAggregationCompleted(Aggregator<A,C> sender,
 				A aggregatedAnnotation);

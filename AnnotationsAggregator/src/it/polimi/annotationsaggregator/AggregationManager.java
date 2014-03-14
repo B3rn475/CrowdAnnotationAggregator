@@ -7,9 +7,9 @@ import it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener
 import it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener;
 
 import java.util.Collection;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Templated Aggregation Manager that allow to Aggregate a general kind of Annotation
@@ -20,14 +20,13 @@ import java.util.Hashtable;
  *
  * @param <A> Annotation type
  */
-public class AggregationManager<A extends Annotation<C, ?>, C extends Content> implements OnEstimationCompletedListener<A>, OnAggregationCompletedListener<A,C> {
+public class AggregationManager<A extends Annotation<C, ?>, C extends Content> implements Map<A,Double>, OnEstimationCompletedListener<A>, OnAggregationCompletedListener<A,C> {
 	private final OnProcessListener<A, C> listener;
 	
 	private final AggregatorFactory<A, C> aggregatorFactory;
 	private final CoherenceEstimatorFactory<A> estimatorFactory;
 	
-	private final Hashtable<C, Collection<A>> annotations = new Hashtable<C, Collection<A>>();
-	private final Hashtable<Annotator, Double> weights = new Hashtable<Annotator, Double>();
+	private final Map<A, Double> weights = new HashMap<A, Double>();
 	private boolean isWorking = false;
 	private final double threshold;
 	private final int maxIterations;
@@ -35,11 +34,11 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	private int step = 0;
 	private long countDown = 0;
 	
-	private final Hashtable<Annotator, Double> lastWeights = new Hashtable<Annotator, Double>();
+	private final Map<A, Double> lastWeights = new HashMap<A, Double>();
 	
-	private final Hashtable<C, Aggregator<A, C>> aggregators = new Hashtable<C, Aggregator<A, C>>();
-	private final Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = new Hashtable<Annotator, CoherenceEstimator<A>>();
-	private final Hashtable<C, A> finalAggregation = new Hashtable<C, A>();
+	private final Map<C,Aggregator<A, C>> aggregators = new HashMap<C, Aggregator<A, C>>();
+	private final Map<Annotator, CoherenceEstimator<A>> coherenceEstimators = new HashMap<Annotator, CoherenceEstimator<A>>();
+	private final HashMap<C, A> finalAggregation = new HashMap<C, A>();
 	
 	/**
 	 * Builder of the AggregatorManager
@@ -67,23 +66,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 		this.threshold = threshold;
 		this.maxIterations = maxIterations;
 	}
-
-	/**
-	 * Get an handle of the internal structure that contains the annotations
-	 * @return
-	 */
-	public Dictionary<C, Collection<A>> getAnnotations() {
-		return annotations;
-	}
-
-	/**
-	 * Get an handle of the internal structure that contains the weights of the annotators
-	 * @return
-	 */
-	public Dictionary<Annotator, Double> getWeights() {
-		return weights;
-	}
-	
+		
 	/**
 	 * If the manager is currently working
 	 * @return
@@ -103,18 +86,18 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 		//save last weights to test threshold
 		lastWeights.putAll(weights);
 		
-		final Enumeration<C> contents = annotations.keys();		
-		while(contents.hasMoreElements()){
-			final C content = contents.nextElement();
-			final Aggregator<A,C> aggregator = aggregatorFactory.buildAggregator(this, content);
-			aggregators.put(content, aggregator);
-			aggregator.addAll(annotations.get(content));
-		}
-		
-		final Enumeration<Annotator> annotators = weights.keys();
-		while(annotators.hasMoreElements()){
-			final Annotator annotator = annotators.nextElement();
-			coherenceEstimators.put(annotator, estimatorFactory.buildEstimator(this, annotator));
+		for (A annotation : weights.keySet()){
+			final Aggregator<A,C> aggregator;
+			if (aggregators.containsKey(annotation.content)){
+				aggregator = aggregators.get(annotation.content);
+			} else {
+				aggregator = aggregatorFactory.buildAggregator(this, annotation.content);
+				aggregators.put(annotation.content, aggregator);
+			}
+			aggregator.add(annotation);
+			if (!coherenceEstimators.containsKey(annotation.annotator)){
+				coherenceEstimators.put(annotation.annotator, estimatorFactory.buildEstimator(this, annotation.annotator));
+			}
 		}
 		
 		nextStep();
@@ -134,10 +117,8 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 * Start the aggregation phase
 	 */
 	private void startAggregation(){
-		countDown = annotations.size();
-		final Enumeration<C> contents = annotations.keys();		
-		while(contents.hasMoreElements()){
-			final Aggregator<A,C> aggregator = aggregators.get(contents.nextElement());
+		countDown = aggregators.size();
+		for(Aggregator<A,C> aggregator : aggregators.values()){
 			aggregator.aggregate(weights);
 		}
 	}
@@ -147,9 +128,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 */
 	private void startEstimation(){
 		countDown = coherenceEstimators.size();
-		final Enumeration<Annotator> annotators = coherenceEstimators.keys();		
-		while(annotators.hasMoreElements()){
-			final CoherenceEstimator<A> estimator = coherenceEstimators.get(annotators.nextElement());
+		for (CoherenceEstimator<A> estimator : coherenceEstimators.values()){
 			estimator.estimate();
 		}
 	}
@@ -176,15 +155,15 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 * Normalizes the weights of the annotators
 	 */
 	private void normalizeWeights(){
-		double tot = 0;
+		double max = 0;
 		for (double d : weights.values()){
-			tot += d;
+			max = Math.max(max, Math.abs(d));
 		}
 		
-		final Enumeration<Annotator> annotators = weights.keys();		
-		while(annotators.hasMoreElements()){
-			final Annotator annotator = annotators.nextElement();
-			weights.put(annotator, weights.get(annotator) / tot);
+		if (max == 0.0) return;
+		
+		for(A annotation : weights.keySet()){
+			weights.put(annotation, weights.get(annotation) / max);
 		}
 	}
 	
@@ -195,11 +174,9 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	private double computeDelta(){
 		double delta = 0;
 		
-		final Enumeration<Annotator> annotators = weights.keys();		
-		while(annotators.hasMoreElements()){
-			final Annotator annotator = annotators.nextElement();
-			double weight = weights.get(annotator);
-			double lastWeight = lastWeights.get(annotator);
+		for(A annotation : weights.keySet()){
+			double weight = weights.get(annotation);
+			double lastWeight = lastWeights.get(annotation);
 			
 			delta += Math.abs(weight - lastWeight);
 		}
@@ -211,10 +188,8 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 * Initialize the final aggregation after convergence
 	 */
 	private void startFinalAggregation(){
-		countDown = annotations.size();
-		final Enumeration<C> contents = annotations.keys();		
-		while(contents.hasMoreElements()){
-			final Aggregator<A,C> aggregator = aggregators.get(contents.nextElement());
+		countDown = aggregators.size();
+		for(Aggregator<A, C> aggregator : aggregators.values()){
 			aggregator.aggregateFinal(weights);
 		}
 	}
@@ -223,11 +198,13 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 * Listener of the aggregator completeness
 	 */
 	@Override
-	public void onAggregationCompleted(Aggregator<A, C> sender, Collection<Pair<A>> aggregatedAnnotations) {
+	public void onAggregationCompleted(Aggregator<A, C> sender, Map<A, A> aggregatedAnnotations) {
 		countDown--;
 		
-		for (Pair<A> pair : aggregatedAnnotations){
-			coherenceEstimators.get(pair.annotation.annotator).add(pair);
+		for (Entry<A,A> entry : aggregatedAnnotations.entrySet()){
+			final A annotation = entry.getKey();
+			final A estimation = entry.getValue();
+			coherenceEstimators.get(annotation.annotator).put(annotation, estimation);
 		}
 		
 		
@@ -240,10 +217,12 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 * Listener of the weight estimation completion
 	 */
 	@Override
-	public void onEstimationCompleted(CoherenceEstimator<A> sender, double weight) {
+	public void onEstimationCompleted(CoherenceEstimator<A> sender, Map<A, Double> estimatedWeights) {
 		countDown--;
 		
-		weights.put(sender.annotator, weight);
+		for (Entry<A, Double> entry : estimatedWeights.entrySet()){
+			weights.put(entry.getKey(), entry.getValue());
+		}
 		
 		if (countDown == 0){
 			testCompletion();
@@ -262,7 +241,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 		if (countDown == 0){
 			isWorking = false;
 			@SuppressWarnings("unchecked")
-			Dictionary<Content, A> tmp = (Dictionary<Content, A>) finalAggregation.clone();
+			Map<Content, A> tmp = (Map<Content, A>) finalAggregation.clone();
 			listener.onAggregationEnded(this, tmp);
 			aggregators.clear();
 			coherenceEstimators.clear();
@@ -279,6 +258,67 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 */
 	public interface OnProcessListener<A extends Annotation<C, ?>, C extends Content>{
 		public void onStepInitiated(AggregationManager<A, C> sender,int step);
-		public void onAggregationEnded(AggregationManager<A, C> sender, Dictionary<Content, A> aggregatedAnnotations);
+		public void onAggregationEnded(AggregationManager<A, C> sender, Map<Content, A> aggregatedAnnotations);
+	}
+
+	@Override
+	public void clear() {
+		weights.clear();
+		lastWeights.clear();
+	}
+
+	@Override
+	public boolean containsKey(Object key) {
+		return weights.containsKey(key);
+	}
+
+	@Override
+	public boolean containsValue(Object value) {
+		return weights.containsValue(value);
+	}
+
+	@Override
+	public Set<java.util.Map.Entry<A, Double>> entrySet() {
+		return weights.entrySet();
+	}
+
+	@Override
+	public Double get(Object key) {
+		return weights.get(key);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return weights.isEmpty();
+	}
+
+	@Override
+	public Set<A> keySet() {
+		return weights.keySet();
+	}
+
+	@Override
+	public Double put(A annotation, Double weight) {
+		return weights.put(annotation, weight);
+	}
+
+	@Override
+	public void putAll(Map<? extends A, ? extends Double> m) {
+		weights.putAll(m);
+	}
+
+	@Override
+	public Double remove(Object key) {
+		return weights.remove(key);
+	}
+
+	@Override
+	public int size() {
+		return weights.size();
+	}
+
+	@Override
+	public Collection<Double> values() {
+		return weights.values();
 	}
 }

@@ -2,9 +2,10 @@ package it.polimi.annotationsaggregator.junit.bool;
 
 import static org.junit.Assert.*;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import it.polimi.annotationsaggregator.Aggregator;
 import it.polimi.annotationsaggregator.Annotator;
@@ -12,7 +13,6 @@ import it.polimi.annotationsaggregator.BaseLinearAggregator.OnBaseLinearAggregat
 import it.polimi.annotationsaggregator.CoherenceEstimator;
 import it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener;
 import it.polimi.annotationsaggregator.Content;
-import it.polimi.annotationsaggregator.Pair;
 import it.polimi.annotationsaggregator.bool.BooleanAnnotation;
 import it.polimi.annotationsaggregator.bool.BooleanFactory;
 
@@ -22,32 +22,52 @@ import org.junit.Test;
 
 public class testBooleanFactory implements OnBaseLinearAggregationCompletedListener<BooleanAnnotation>, OnEstimationCompletedListener<BooleanAnnotation>{
 
-	private Content content;
 	private BooleanFactory factory;
 	Annotator[] annotators;
 	Content[] contents;
+	BooleanAnnotation[] annotationsA;
+	BooleanAnnotation[] annotationsE;
 	boolean[] expectedAggregatedBooleans;
 	boolean expectedFinalAnnotation;
-	double expectedEstimatedWeight;
+	double[] expectedEstimatedWeights;
+	Hashtable<BooleanAnnotation, Double> weights;
 	
 	@Before
 	public void setUp() throws Exception {
-		content = new Content(1);
 		factory = new BooleanFactory();
-		annotators = new Annotator[] { new Annotator(1), new Annotator(2), new Annotator(3) };
-		expectedAggregatedBooleans = new boolean[] {false, true, true};
-		contents = new Content[] {new Content(1), new Content(2), new Content(3)};
+		annotators = new Annotator[] { new Annotator(1), 
+				new Annotator(2), 
+				new Annotator(3) };
+		expectedAggregatedBooleans = new boolean[] {false, 
+				true, 
+				true};
+		contents = new Content[] {new Content(1), 
+				new Content(2), 
+				new Content(3)};
+		annotationsA = new BooleanAnnotation[] {new BooleanAnnotation(contents[0], annotators[0], true), 
+				new BooleanAnnotation(contents[0], annotators[1], false),
+				new BooleanAnnotation(contents[0], annotators[2], false)};
+		annotationsE = new BooleanAnnotation[] {new BooleanAnnotation(contents[0], annotators[0], true), 
+				new BooleanAnnotation(contents[1], annotators[0], true),
+				new BooleanAnnotation(contents[2], annotators[0], false)};
 		expectedFinalAnnotation = false;
-		expectedEstimatedWeight = 1.0;
+		weights = new Hashtable<BooleanAnnotation, Double>();
+		weights.put(annotationsA[0], 1.0);
+		weights.put(annotationsA[1], 1.0);
+		weights.put(annotationsA[2], 1.0);
+		expectedEstimatedWeights = new double[]{0, 0, 2};
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		content = null;
 		contents = null;
 		factory = null;
 		annotators = null;
+		annotationsA = null;
+		annotationsE = null;
 		expectedAggregatedBooleans = null;
+		expectedEstimatedWeights = null;
+		weights = null;
 	}
 
 	/**
@@ -55,7 +75,7 @@ public class testBooleanFactory implements OnBaseLinearAggregationCompletedListe
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testBooleanFactorybuildAggregatorNullListener() {
-		factory.buildAggregator(null, content);
+		factory.buildAggregator(null, contents[0]);
 	}
 	
 	/**
@@ -71,17 +91,12 @@ public class testBooleanFactory implements OnBaseLinearAggregationCompletedListe
 	 */
 	@Test
 	public void testBooleanFactorybuildAggregatorResult() {		
-		Aggregator<BooleanAnnotation, Content> aggregator = factory.buildAggregator(this, content);
+		Aggregator<BooleanAnnotation, Content> aggregator = factory.buildAggregator(this, contents[0]);
 		assertNotNull("No Aggregator built", aggregator);
 		
-		aggregator.add(new BooleanAnnotation(content, annotators[0], true));
-		aggregator.add(new BooleanAnnotation(content, annotators[1], false));
-		aggregator.add(new BooleanAnnotation(content, annotators[2], false));
-		
-		Hashtable<Annotator, Double> weights = new Hashtable<Annotator, Double>();
-		weights.put(annotators[0], 1.0/3.0);
-		weights.put(annotators[1], 1.0/3.0);
-		weights.put(annotators[2], 1.0/3.0);
+		aggregator.add(annotationsA[0]);
+		aggregator.add(annotationsA[1]);
+		aggregator.add(annotationsA[2]);
 		
 		aggregator.aggregate(weights);
 		
@@ -90,21 +105,21 @@ public class testBooleanFactory implements OnBaseLinearAggregationCompletedListe
 
 	@Override
 	public void onAggregationCompleted(Aggregator<BooleanAnnotation, Content> sender,
-			Collection<Pair<BooleanAnnotation>> aggregatedAnnotations) {
+			Map<BooleanAnnotation, BooleanAnnotation> aggregatedAnnotations) {
 		assertNotNull("Sender is null",sender);
 		assertNotNull("aggregatedAnnotations is null",aggregatedAnnotations);
 		assertEquals("Less annotations has been generated",aggregatedAnnotations.size(), annotators.length);
 		
 		HashSet<Annotator> viewedAnnotators = new HashSet<Annotator>();
 		
-		for (Pair<BooleanAnnotation> pair : aggregatedAnnotations){
-			assertNotNull("Annotation annotator is null", pair.annotation.annotator);
-			assertNotNull("Estimation annotator is null", pair.estimation.annotator);
-			assertEquals("Annotation and Estimation are different", pair.annotation.annotator,pair.estimation.annotator);
-			viewedAnnotators.add(pair.annotation.annotator);
+		for (Entry<BooleanAnnotation, BooleanAnnotation> entity : aggregatedAnnotations.entrySet()){
+			final BooleanAnnotation annotation = entity.getKey();
+			final BooleanAnnotation estimation = entity.getValue();
+			assertEquals("Annotation and Estimation are different", annotation.annotator, estimation.annotator);
+			viewedAnnotators.add(annotation.annotator);
 			for (int i=0; i < annotators.length; i++){
-				if (annotators[i].equals(pair.annotation.annotator)){
-					assertEquals("Estimation is incorrect", pair.estimation.getValue(), expectedAggregatedBooleans[i]);
+				if (annotators[i].equals(annotation.annotator)){
+					assertEquals("Estimation is incorrect", estimation.getValue(), expectedAggregatedBooleans[i]);
 					break;
 				}
 			}
@@ -149,17 +164,20 @@ public class testBooleanFactory implements OnBaseLinearAggregationCompletedListe
 		CoherenceEstimator<BooleanAnnotation> estimator = factory.buildEstimator(this, Annotator.NONE);
 		assertNotNull("No Estimator built", estimator);
 		
-		estimator.add(new Pair<BooleanAnnotation>(new BooleanAnnotation(contents[0], Annotator.NONE, true), new BooleanAnnotation(contents[0], Annotator.NONE, true)));
-		estimator.add(new Pair<BooleanAnnotation>(new BooleanAnnotation(contents[1], Annotator.NONE, true), new BooleanAnnotation(contents[0], Annotator.NONE, true)));
-		estimator.add(new Pair<BooleanAnnotation>(new BooleanAnnotation(contents[2], Annotator.NONE, false), new BooleanAnnotation(contents[0], Annotator.NONE, true)));
+		estimator.put(annotationsE[0], new BooleanAnnotation(contents[0], annotationsE[0].annotator, true));
+		estimator.put(annotationsE[1], new BooleanAnnotation(contents[1], annotationsE[1].annotator, true));
+		estimator.put(annotationsE[2], new BooleanAnnotation(contents[2], annotationsE[2].annotator, true));
 		
 		estimator.estimate();
 	}
 
 	@Override
 	public void onEstimationCompleted(
-			CoherenceEstimator<BooleanAnnotation> sender, double weight) {
+			CoherenceEstimator<BooleanAnnotation> sender, Map<BooleanAnnotation, Double> estimatedWeights) {
 		assertNotNull("Sender is null",sender);
-		assertEquals("Estimate weight", weight, expectedEstimatedWeight, 0.001);
+		for (int i=0; i<annotationsE.length; i++){
+			System.out.println(Double.toString(estimatedWeights.get(annotationsE[i])));
+			assertEquals("Estimate weight", expectedEstimatedWeights[i], estimatedWeights.get(annotationsE[i]), 0.001);
+		}
 	}
 }

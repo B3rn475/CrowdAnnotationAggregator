@@ -4,7 +4,9 @@
 package it.polimi.annotationsaggregator;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This is a Cohernece Estimator. That allow to generate a weight based on the pairs (annotation . estimation) for each content annotated by the user
@@ -15,10 +17,13 @@ import java.util.Iterator;
  *
  * @param <A> AnnotationType
  */
-public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements Collection<Pair<A>> {
+public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements Map<A,A> {
 	public final Annotator annotator;
 	protected final OnEstimationCompletedListener<A> listener;
-	private final Collection<Pair<A>> pairs;
+	private final Map<A, A> pairs;
+	private final HashMap<A, Double> estimatedWeights = new HashMap<A, Double>();
+	
+	private int countDown = 0;
 	
 	/**
 	 * Builds a new Estimator
@@ -27,7 +32,7 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	 * @param annotator the Annotator we are estimating
 	 * @param container the container of the pairs
 	 */
-	public CoherenceEstimator(OnEstimationCompletedListener<A> listener, Annotator annotator, Collection<Pair<A>> container){
+	public CoherenceEstimator(OnEstimationCompletedListener<A> listener, Annotator annotator, Map<A,A> container){
 		if (listener == null)
 			throw new IllegalArgumentException("The listener cannot be null");
 		if (annotator == null)
@@ -40,17 +45,52 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	}
 	
 	/**
-	 * Start the estimation.
+	 * Estimate the weight of an annotation
 	 * This method must be implemented by the derived classes
+	 * @param skip
 	 */
-	public abstract void estimate();
+	protected abstract void estimate(A skip);
 	
+	/**
+	 * Start the estimation.
+	 */
+	public final void estimate(){
+		estimatedWeights.clear();
+		countDown = this.size();
+		initializingEstimation();
+	}
+	
+	protected void initializingEstimation() {
+		postInitializingEstimation();
+	}
+	
+	protected void endingEstimation(){
+		postEndingEstimation();
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected final void postEndingEstimation(){
+		listener.onEstimationCompleted(this, (Map<A, Double>) estimatedWeights.clone());
+	}
+
+	protected final void postInitializingEstimation() {
+		for (A annotation : this.keySet()){
+			estimate(annotation);
+		}
+	}
+
 	/**
 	 * This method must be called by derived classes at the end on the estimation
 	 * @param weight
 	 */
-	protected final void postEstimation(double weight){
-		listener.onEstimationCompleted(this, weight);
+	protected final void postEstimation(A annotation, double weight){
+		countDown--;
+		
+		estimatedWeights.put(annotation, weight);
+		
+		if (countDown == 0){
+			endingEstimation();
+		}
 	}
 	
 	/**
@@ -60,27 +100,7 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	 * @param <A> AnnotationType
 	 */
 	public interface OnEstimationCompletedListener<A extends Annotation<?, ?>>{
-		public void onEstimationCompleted(CoherenceEstimator<A> sender, double weight);
-	}
-
-	@Override
-	public boolean add(Pair<A> e) {
-		if (!e.annotation.annotator.equals(annotator))
-			throw new IllegalArgumentException("The annotation must be of the same annotator of the Estimator");
-		if (!e.estimation.annotator.equals(annotator))
-			throw new IllegalArgumentException("The estimation must be of the same annotator of the Estimator");
-		return pairs.add(e);
-	}
-
-	@Override
-	public boolean addAll(Collection<? extends Pair<A>> c) {
-		for (Pair<A> e : c){
-			if (!e.annotation.annotator.equals(annotator))
-				throw new IllegalArgumentException("The annotation must be of the same annotator of the Estimator");
-			if (!e.estimation.annotator.equals(annotator))
-				throw new IllegalArgumentException("The estimation must be of the same annotator of the Estimator");
-		}
-		return pairs.addAll(c);
+		public void onEstimationCompleted(CoherenceEstimator<A> sender, Map<A, Double> estimatedWeights);
 	}
 
 	@Override
@@ -89,13 +109,23 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	}
 
 	@Override
-	public boolean contains(Object o) {
-		return pairs.contains(o);
+	public boolean containsKey(Object key) {
+		return pairs.containsKey(key);
 	}
 
 	@Override
-	public boolean containsAll(Collection<?> c) {
-		return pairs.containsAll(c);
+	public boolean containsValue(Object value) {
+		return pairs.containsValue(value);
+	}
+
+	@Override
+	public Set<java.util.Map.Entry<A, A>> entrySet() {
+		return pairs.entrySet();
+	}
+
+	@Override
+	public A get(Object key) {
+		return pairs.get(key);
 	}
 
 	@Override
@@ -104,23 +134,47 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	}
 
 	@Override
-	public Iterator<Pair<A>> iterator() {
-		return pairs.iterator();
+	public Set<A> keySet() {
+		return pairs.keySet();
+	}
+	
+	public Set<A> annotationSet() {
+		return pairs.keySet();
 	}
 
 	@Override
-	public boolean remove(Object o) {
-		return pairs.remove(o);
+	public A put(A annotation, A estimation) {
+		if (annotation == null)
+			throw new IllegalArgumentException("annotation cannot be null");
+		if (estimation == null)
+			throw new IllegalArgumentException("estimation cannot be null");
+		if (annotation.content != estimation.content)
+			throw new IllegalArgumentException("annotation and estimation must be related to the same content");
+		if (annotation.annotator != estimation.annotator)
+			throw new IllegalArgumentException("annotation and estimation must be related to the same annotator");
+		return pairs.put(annotation, estimation);
 	}
 
 	@Override
-	public boolean removeAll(Collection<?> c) {
-		return pairs.removeAll(c);
+	public void putAll(Map<? extends A, ? extends A> m) {
+		for (Entry<? extends A, ? extends A> entry : m.entrySet()){
+			final A annotation = entry.getKey();
+			final A estimation = entry.getValue();
+			if (annotation == null)
+				throw new IllegalArgumentException("annotation cannot be null");
+			if (estimation == null)
+				throw new IllegalArgumentException("estimation cannot be null");
+			if (annotation.content != estimation.content)
+				throw new IllegalArgumentException("annotation and estimation must be related to the same content");
+			if (annotation.annotator != estimation.annotator)
+				throw new IllegalArgumentException("annotation and estimation must be related to the same annotator");
+		}
+		pairs.putAll(m);
 	}
 
 	@Override
-	public boolean retainAll(Collection<?> c) {
-		return pairs.retainAll(c);
+	public A remove(Object key) {
+		return pairs.remove(key);
 	}
 
 	@Override
@@ -129,12 +183,7 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	}
 
 	@Override
-	public Object[] toArray() {
-		return pairs.toArray();
-	}
-
-	@Override
-	public <T> T[] toArray(T[] a) {
-		return pairs.toArray(a);
+	public Collection<A> values() {
+		return pairs.values();
 	}
 }

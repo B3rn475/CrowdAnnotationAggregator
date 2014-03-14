@@ -27,6 +27,10 @@ public final class BooleanAnnotation extends BaseAnnotation {
 	
 	public BooleanAnnotation(Content content, Annotator annotator, double value) {
 		super(content, annotator);
+		if (Double.isNaN(value))
+			throw new IllegalArgumentException("value must be a number");
+		if (Double.isInfinite(value))
+			throw new IllegalArgumentException("value must be a number");
 		this.value = value;
 	}
 	
