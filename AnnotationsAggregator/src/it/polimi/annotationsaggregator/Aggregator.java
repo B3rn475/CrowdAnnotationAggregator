@@ -15,10 +15,10 @@ import java.util.Iterator;
  *
  * @param <A> AnnotationType
  */
-public abstract class Aggregator<A extends Annotation> implements Collection<A> {
-	public final Content content;
+public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> implements Collection<A> {
+	public final C content;
 
-	protected final OnAggregationCompletedListener<A> listener;
+	protected final OnAggregationCompletedListener<A, C> listener;
 
 	private final Collection<A> annotations;
 
@@ -32,8 +32,8 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	 * @param content Content that is going to be aggregated by this object
 	 * @param container An container for the annotations
 	 */
-	protected Aggregator(OnAggregationCompletedListener<A> listener,
-			Content content, Collection<A> container) {
+	protected Aggregator(OnAggregationCompletedListener<A, C> listener,
+			C content, Collection<A> container) {
 		if (listener == null)
 			throw new IllegalArgumentException("The listener cannot be null");
 		if (content == null)
@@ -132,11 +132,11 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 	 *
 	 * @param <A>
 	 */
-	public interface OnAggregationCompletedListener<A extends Annotation> {
-		public void onAggregationCompleted(Aggregator<A> sender,
+	public interface OnAggregationCompletedListener<A extends Annotation<C, ?>, C extends Content> {
+		public void onAggregationCompleted(Aggregator<A,C> sender,
 				Collection<Pair<A>> aggregatedAnnotations);
 
-		public void onFinalAggregationCompleted(Aggregator<A> sender,
+		public void onFinalAggregationCompleted(Aggregator<A,C> sender,
 				A aggregatedAnnotation);
 	}
 
@@ -149,7 +149,7 @@ public abstract class Aggregator<A extends Annotation> implements Collection<A> 
 
 	@Override
 	public boolean addAll(Collection<? extends A> c) {
-		for (Annotation a : c){
+		for (A a : c){
 			if (!a.content.equals(content))
 				throw new IllegalArgumentException("The annotation must be of the same content of the Aggregator");
 		}

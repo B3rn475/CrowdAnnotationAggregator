@@ -16,6 +16,7 @@ import org.junit.Test;
  */
 public class testBooleanAnnotation {
 
+	private Content content = new Content(1);
 	/**
 	 * Test method for {@link it.polimi.annotationsaggregator.bool.BooleanAnnotation#BooleanAnnotation(it.polimi.annotationsaggregator.Content, it.polimi.annotationsaggregator.Annotator)}.
 	 * Invalid Content
@@ -31,7 +32,7 @@ public class testBooleanAnnotation {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testBooleanAnnotationNullAnnotator() {
-		new BooleanAnnotation(Content.NONE, null);
+		new BooleanAnnotation(content, null);
 	}
 	
 	/**
@@ -39,10 +40,10 @@ public class testBooleanAnnotation {
 	 */
 	@Test
 	public void testBooleanAnnotationContentAnnotatorBoolean() {
-		BooleanAnnotation trueAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, true);
+		BooleanAnnotation trueAnnotation = new BooleanAnnotation(content, Annotator.NONE, true);
 		assertTrue("True Annotation is False", trueAnnotation.getValue());
 		
-		BooleanAnnotation falseAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, false);
+		BooleanAnnotation falseAnnotation = new BooleanAnnotation(content, Annotator.NONE, false);
 		assertFalse("False Annotation is True", falseAnnotation.getValue());
 	}
 
@@ -51,13 +52,13 @@ public class testBooleanAnnotation {
 	 */
 	@Test
 	public void testBooleanAnnotationContentAnnotatorDouble() {
-		BooleanAnnotation trueAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, 1);
+		BooleanAnnotation trueAnnotation = new BooleanAnnotation(content, Annotator.NONE, 1);
 		assertTrue("True Annotation is False", trueAnnotation.getValue());
 		
-		BooleanAnnotation zeroAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, 0);
+		BooleanAnnotation zeroAnnotation = new BooleanAnnotation(content, Annotator.NONE, 0);
 		assertTrue("Zero Annotation is False", zeroAnnotation.getValue());
 		
-		BooleanAnnotation falseAnnotation = new BooleanAnnotation(Content.NONE, Annotator.NONE, -1);
+		BooleanAnnotation falseAnnotation = new BooleanAnnotation(content, Annotator.NONE, -1);
 		assertFalse("False Annotation is True", falseAnnotation.getValue());
 	}
 

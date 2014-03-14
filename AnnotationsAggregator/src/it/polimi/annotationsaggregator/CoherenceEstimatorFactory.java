@@ -9,6 +9,6 @@ import it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedL
  * @author b3rn475
  *
  */
-public interface CoherenceEstimatorFactory<A extends Annotation> {
-	public CoherenceEstimator<A> buildEstimator(OnEstimationCompletedListener<A> manager, Annotator annotator);
+public interface CoherenceEstimatorFactory<A extends Annotation<?, ?>> {
+	public CoherenceEstimator<A> buildEstimator(OnEstimationCompletedListener<A> listener, Annotator annotator);
 }

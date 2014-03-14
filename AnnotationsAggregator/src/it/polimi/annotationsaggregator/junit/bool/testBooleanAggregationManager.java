@@ -7,7 +7,7 @@ import java.util.Dictionary;
 
 import it.polimi.annotationsaggregator.AggregationManager;
 import it.polimi.annotationsaggregator.Annotator;
-import it.polimi.annotationsaggregator.AggregationManager.OnProcessListener;
+import it.polimi.annotationsaggregator.BaseAggregationManager.OnBaseProcessListener;
 import it.polimi.annotationsaggregator.Content;
 import it.polimi.annotationsaggregator.bool.BooleanAggregationManager;
 import it.polimi.annotationsaggregator.bool.BooleanAnnotation;
@@ -16,7 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class testBooleanAggregationManager implements OnProcessListener<BooleanAnnotation> {
+public class testBooleanAggregationManager implements OnBaseProcessListener<BooleanAnnotation> {
 
 	BooleanAggregationManager manager;
 	Annotator[] annotators;
@@ -59,12 +59,12 @@ public class testBooleanAggregationManager implements OnProcessListener<BooleanA
 	}
 
 	@Override
-	public void onStepInitiated(AggregationManager<BooleanAnnotation> sender, int step) {
+	public void onStepInitiated(AggregationManager<BooleanAnnotation, Content> sender, int step) {
 		assertTrue("Step is negative", step >= 0);
 	}
 
 	@Override
-	public void onAggregationEnded(AggregationManager<BooleanAnnotation> sender, Dictionary<Content, BooleanAnnotation> aggregatedAnnotations) {
+	public void onAggregationEnded(AggregationManager<BooleanAnnotation, Content> sender, Dictionary<Content, BooleanAnnotation> aggregatedAnnotations) {
 		boolean value = true;
 		for (int k=0; k < contents.length; k++){
 			assertEquals("Estimation Error", value, aggregatedAnnotations.get(contents[k]).getValue());

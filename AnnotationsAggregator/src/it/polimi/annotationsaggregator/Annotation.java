@@ -7,11 +7,11 @@ package it.polimi.annotationsaggregator;
  * @author B3rn475
  *
  */
-public abstract class Annotation {
-	public final Annotator annotator;
-	public final Content content;
+public abstract class Annotation<C extends Content, A extends Annotator> {
+	public final A annotator;
+	public final C content;
 	
-	public Annotation(Content content, Annotator annotator){
+	public Annotation(C content, A annotator){
 		if (content == null)
 			throw new IllegalArgumentException("Content cannot be null");
 		if (annotator == null)

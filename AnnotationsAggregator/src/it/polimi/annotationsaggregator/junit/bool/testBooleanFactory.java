@@ -8,10 +8,10 @@ import java.util.Hashtable;
 
 import it.polimi.annotationsaggregator.Aggregator;
 import it.polimi.annotationsaggregator.Annotator;
+import it.polimi.annotationsaggregator.BaseLinearAggregator.OnBaseLinearAggregationCompletedListener;
 import it.polimi.annotationsaggregator.CoherenceEstimator;
 import it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener;
 import it.polimi.annotationsaggregator.Content;
-import it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener;
 import it.polimi.annotationsaggregator.Pair;
 import it.polimi.annotationsaggregator.bool.BooleanAnnotation;
 import it.polimi.annotationsaggregator.bool.BooleanFactory;
@@ -20,8 +20,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class testBooleanFactory implements OnAggregationCompletedListener<BooleanAnnotation>, OnEstimationCompletedListener<BooleanAnnotation>{
+public class testBooleanFactory implements OnBaseLinearAggregationCompletedListener<BooleanAnnotation>, OnEstimationCompletedListener<BooleanAnnotation>{
 
+	private Content content;
 	private BooleanFactory factory;
 	Annotator[] annotators;
 	Content[] contents;
@@ -31,6 +32,7 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 	
 	@Before
 	public void setUp() throws Exception {
+		content = new Content(1);
 		factory = new BooleanFactory();
 		annotators = new Annotator[] { new Annotator(1), new Annotator(2), new Annotator(3) };
 		expectedAggregatedBooleans = new boolean[] {false, true, true};
@@ -41,6 +43,8 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 
 	@After
 	public void tearDown() throws Exception {
+		content = null;
+		contents = null;
 		factory = null;
 		annotators = null;
 		expectedAggregatedBooleans = null;
@@ -51,7 +55,7 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testBooleanFactorybuildAggregatorNullListener() {
-		factory.buildAggregator(null, Content.NONE);
+		factory.buildAggregator(null, content);
 	}
 	
 	/**
@@ -67,12 +71,12 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 	 */
 	@Test
 	public void testBooleanFactorybuildAggregatorResult() {		
-		Aggregator<BooleanAnnotation> aggregator = factory.buildAggregator(this, Content.NONE);
+		Aggregator<BooleanAnnotation, Content> aggregator = factory.buildAggregator(this, content);
 		assertNotNull("No Aggregator built", aggregator);
 		
-		aggregator.add(new BooleanAnnotation(Content.NONE, annotators[0], true));
-		aggregator.add(new BooleanAnnotation(Content.NONE, annotators[1], false));
-		aggregator.add(new BooleanAnnotation(Content.NONE, annotators[2], false));
+		aggregator.add(new BooleanAnnotation(content, annotators[0], true));
+		aggregator.add(new BooleanAnnotation(content, annotators[1], false));
+		aggregator.add(new BooleanAnnotation(content, annotators[2], false));
 		
 		Hashtable<Annotator, Double> weights = new Hashtable<Annotator, Double>();
 		weights.put(annotators[0], 1.0/3.0);
@@ -85,7 +89,7 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 	}
 
 	@Override
-	public void onAggregationCompleted(Aggregator<BooleanAnnotation> sender,
+	public void onAggregationCompleted(Aggregator<BooleanAnnotation, Content> sender,
 			Collection<Pair<BooleanAnnotation>> aggregatedAnnotations) {
 		assertNotNull("Sender is null",sender);
 		assertNotNull("aggregatedAnnotations is null",aggregatedAnnotations);
@@ -113,7 +117,7 @@ public class testBooleanFactory implements OnAggregationCompletedListener<Boolea
 
 	@Override
 	public void onFinalAggregationCompleted(
-			Aggregator<BooleanAnnotation> sender,
+			Aggregator<BooleanAnnotation,Content> sender,
 			BooleanAnnotation aggregatedAnnotation) {
 		assertNotNull("Sender is null",sender);
 		assertNotNull("aggregatedAnnotation is null",aggregatedAnnotation);

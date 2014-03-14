@@ -15,7 +15,7 @@ import java.util.Iterator;
  *
  * @param <A> AnnotationType
  */
-public abstract class CoherenceEstimator<A extends Annotation> implements Collection<Pair<A>> {
+public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements Collection<Pair<A>> {
 	public final Annotator annotator;
 	protected final OnEstimationCompletedListener<A> listener;
 	private final Collection<Pair<A>> pairs;
@@ -59,7 +59,7 @@ public abstract class CoherenceEstimator<A extends Annotation> implements Collec
 	 *
 	 * @param <A> AnnotationType
 	 */
-	public interface OnEstimationCompletedListener<A extends Annotation>{
+	public interface OnEstimationCompletedListener<A extends Annotation<?, ?>>{
 		public void onEstimationCompleted(CoherenceEstimator<A> sender, double weight);
 	}
 

@@ -20,13 +20,13 @@ import java.util.Hashtable;
  *
  * @param <A> Annotation type
  */
-public class AggregationManager<A extends Annotation> implements OnEstimationCompletedListener<A>, OnAggregationCompletedListener<A> {
-	private final OnProcessListener<A> listener;
+public class AggregationManager<A extends Annotation<C, ?>, C extends Content> implements OnEstimationCompletedListener<A>, OnAggregationCompletedListener<A,C> {
+	private final OnProcessListener<A, C> listener;
 	
-	private final AggregatorFactory<A> aggregatorFactory;
+	private final AggregatorFactory<A, C> aggregatorFactory;
 	private final CoherenceEstimatorFactory<A> estimatorFactory;
 	
-	private final Hashtable<Content, Collection<A>> annotations = new Hashtable<Content, Collection<A>>();
+	private final Hashtable<C, Collection<A>> annotations = new Hashtable<C, Collection<A>>();
 	private final Hashtable<Annotator, Double> weights = new Hashtable<Annotator, Double>();
 	private boolean isWorking = false;
 	private final double threshold;
@@ -37,9 +37,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	
 	private final Hashtable<Annotator, Double> lastWeights = new Hashtable<Annotator, Double>();
 	
-	private final Hashtable<Content, Aggregator<A>> aggregators = new Hashtable<Content, Aggregator<A>>();
+	private final Hashtable<C, Aggregator<A, C>> aggregators = new Hashtable<C, Aggregator<A, C>>();
 	private final Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = new Hashtable<Annotator, CoherenceEstimator<A>>();
-	private final Hashtable<Content, A> finalAggregation = new Hashtable<Content, A>();
+	private final Hashtable<C, A> finalAggregation = new Hashtable<C, A>();
 	
 	/**
 	 * Builder of the AggregatorManager
@@ -50,7 +50,7 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	 * @param threshold weights threshold under which the process stops.
 	 * @param maxIterations maximum number of iterations, in order to avoid infinite loops in case of non converting solutions
 	 */
-	public AggregationManager(OnProcessListener<A> listener, AggregatorFactory<A> aggregatorFactory, CoherenceEstimatorFactory<A> estimatorFactory, double threshold, int maxIterations) {
+	public AggregationManager(OnProcessListener<A,C> listener, AggregatorFactory<A,C> aggregatorFactory, CoherenceEstimatorFactory<A> estimatorFactory, double threshold, int maxIterations) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener cannot be null");
 		if (aggregatorFactory == null)
@@ -72,7 +72,7 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	 * Get an handle of the internal structure that contains the annotations
 	 * @return
 	 */
-	public Dictionary<Content, Collection<A>> getAnnotations() {
+	public Dictionary<C, Collection<A>> getAnnotations() {
 		return annotations;
 	}
 
@@ -103,10 +103,10 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		//save last weights to test threshold
 		lastWeights.putAll(weights);
 		
-		final Enumeration<Content> contents = annotations.keys();		
+		final Enumeration<C> contents = annotations.keys();		
 		while(contents.hasMoreElements()){
-			final Content content = contents.nextElement();
-			final Aggregator<A> aggregator = aggregatorFactory.buildAggregator(this, content);
+			final C content = contents.nextElement();
+			final Aggregator<A,C> aggregator = aggregatorFactory.buildAggregator(this, content);
 			aggregators.put(content, aggregator);
 			aggregator.addAll(annotations.get(content));
 		}
@@ -135,9 +135,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	 */
 	private void startAggregation(){
 		countDown = annotations.size();
-		final Enumeration<Content> contents = annotations.keys();		
+		final Enumeration<C> contents = annotations.keys();		
 		while(contents.hasMoreElements()){
-			final Aggregator<A> aggregator = aggregators.get(contents.nextElement());
+			final Aggregator<A,C> aggregator = aggregators.get(contents.nextElement());
 			aggregator.aggregate(weights);
 		}
 	}
@@ -212,9 +212,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	 */
 	private void startFinalAggregation(){
 		countDown = annotations.size();
-		final Enumeration<Content> contents = annotations.keys();		
+		final Enumeration<C> contents = annotations.keys();		
 		while(contents.hasMoreElements()){
-			final Aggregator<A> aggregator = aggregators.get(contents.nextElement());
+			final Aggregator<A,C> aggregator = aggregators.get(contents.nextElement());
 			aggregator.aggregateFinal(weights);
 		}
 	}
@@ -223,7 +223,7 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	 * Listener of the aggregator completeness
 	 */
 	@Override
-	public void onAggregationCompleted(Aggregator<A> sender, Collection<Pair<A>> aggregatedAnnotations) {
+	public void onAggregationCompleted(Aggregator<A, C> sender, Collection<Pair<A>> aggregatedAnnotations) {
 		countDown--;
 		
 		for (Pair<A> pair : aggregatedAnnotations){
@@ -254,7 +254,7 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	 * Listener on the final aggregation completion
 	 */
 	@Override
-	public void onFinalAggregationCompleted(Aggregator<A> sender,
+	public void onFinalAggregationCompleted(Aggregator<A, C> sender,
 			A aggregatedAnnotation) {
 		countDown--;
 		finalAggregation.put(aggregatedAnnotation.content,aggregatedAnnotation);
@@ -277,8 +277,8 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	 *
 	 * @param <A> AnnotationType
 	 */
-	public interface OnProcessListener<A extends Annotation>{
-		public void onStepInitiated(AggregationManager<A> sender,int step);
-		public void onAggregationEnded(AggregationManager<A> sender, Dictionary<Content, A> aggregatedAnnotations);
+	public interface OnProcessListener<A extends Annotation<C, ?>, C extends Content>{
+		public void onStepInitiated(AggregationManager<A, C> sender,int step);
+		public void onAggregationEnded(AggregationManager<A, C> sender, Dictionary<Content, A> aggregatedAnnotations);
 	}
 }

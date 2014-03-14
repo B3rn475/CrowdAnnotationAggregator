@@ -11,14 +11,14 @@ import java.util.Hashtable;
  * @author B3rn475
  *
  */
-public abstract class LinearAggregator<A extends Annotation> extends Aggregator<A> {
+public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Content> extends Aggregator<A, C> {
 
 	private A aggregatedAnnotation = null;
 	private Hashtable<Annotator, A> lookup = null;
 	
 	protected LinearAggregator(
-			it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener<A> listener,
-			Content content, Collection<A> container) {
+			it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener<A, C> listener,
+			C content, Collection<A> container) {
 		super(listener, content, container);
 	}
 

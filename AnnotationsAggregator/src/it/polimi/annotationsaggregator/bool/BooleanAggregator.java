@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.Dictionary;
 
 import it.polimi.annotationsaggregator.Annotator;
+import it.polimi.annotationsaggregator.BaseLinearAggregator;
 import it.polimi.annotationsaggregator.Content;
-import it.polimi.annotationsaggregator.LinearAggregator;
 
-public final class BooleanAggregator extends LinearAggregator<BooleanAnnotation> {
+public final class BooleanAggregator extends BaseLinearAggregator<BooleanAnnotation> {
 	
 	public BooleanAggregator(
-			it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener<BooleanAnnotation> listener,
+			OnAggregationCompletedListener<BooleanAnnotation, Content> listener,
 			Content content, Collection<BooleanAnnotation> container) {
 		super(listener, content, container);
 	}

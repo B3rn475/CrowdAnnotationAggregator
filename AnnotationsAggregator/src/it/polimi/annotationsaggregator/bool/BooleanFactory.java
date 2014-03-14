@@ -7,8 +7,8 @@ import java.util.ArrayList;
 
 import it.polimi.annotationsaggregator.Aggregator;
 import it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener;
-import it.polimi.annotationsaggregator.AggregatorFactory;
 import it.polimi.annotationsaggregator.Annotator;
+import it.polimi.annotationsaggregator.BaseAggregatorFactory;
 import it.polimi.annotationsaggregator.CoherenceEstimator;
 import it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener;
 import it.polimi.annotationsaggregator.CoherenceEstimatorFactory;
@@ -19,7 +19,7 @@ import it.polimi.annotationsaggregator.Pair;
  * @author b3rn475
  *
  */
-public final class BooleanFactory implements AggregatorFactory<BooleanAnnotation>,
+public final class BooleanFactory implements BaseAggregatorFactory<BooleanAnnotation>,
 		CoherenceEstimatorFactory<BooleanAnnotation> {
 
 	@Override
@@ -29,10 +29,9 @@ public final class BooleanFactory implements AggregatorFactory<BooleanAnnotation
 	}
 
 	@Override
-	public Aggregator<BooleanAnnotation> buildAggregator(
-			OnAggregationCompletedListener<BooleanAnnotation> listener,
-			Content content){
+	public Aggregator<BooleanAnnotation, Content> buildAggregator(
+			OnAggregationCompletedListener<BooleanAnnotation, Content> listener,
+			Content content) {
 		return new BooleanAggregator(listener, content, new ArrayList<BooleanAnnotation>());
 	}
-
 }
