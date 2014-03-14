@@ -12,8 +12,13 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- * @author b3rn475
+ * Templated Aggregation Manager that allow to Aggregate a general kind of Annotation
+ * 
+ * This class is meant to be asynchronous, it is so if aggregators and/or estimators are asyncronous
+ * 
+ * @author B3rn475
  *
+ * @param <A> Annotation type
  */
 public class AggregationManager<A extends Annotation> implements OnEstimationCompletedListener<A>, OnAggregationCompletedListener<A> {
 	private final OnProcessListener<A> listener;
@@ -36,6 +41,15 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 	private final Hashtable<Annotator, CoherenceEstimator<A>> coherenceEstimators = new Hashtable<Annotator, CoherenceEstimator<A>>();
 	private final Hashtable<Content, A> finalAggregation = new Hashtable<Content, A>();
 	
+	/**
+	 * Builder of the AggregatorManager
+	 * 
+	 * @param listener an object that listen for events of the process
+	 * @param aggregatorFactory a factory object that allow to build an aggregator for the particular kind annotation
+	 * @param estimatorFactory a factory object that allow to build an estimator for the particular kind annotation
+	 * @param threshold weights threshold under which the process stops.
+	 * @param maxIterations maximum number of iterations, in order to avoid infinite loops in case of non converting solutions
+	 */
 	public AggregationManager(OnProcessListener<A> listener, AggregatorFactory<A> aggregatorFactory, CoherenceEstimatorFactory<A> estimatorFactory, double threshold, int maxIterations) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener cannot be null");
@@ -54,18 +68,33 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		this.maxIterations = maxIterations;
 	}
 
+	/**
+	 * Get an handle of the internal structure that contains the annotations
+	 * @return
+	 */
 	public Dictionary<Content, Collection<A>> getAnnotations() {
 		return annotations;
 	}
 
+	/**
+	 * Get an handle of the internal structure that contains the weights of the annotators
+	 * @return
+	 */
 	public Dictionary<Annotator, Double> getWeights() {
 		return weights;
 	}
 	
+	/**
+	 * If the manager is currently working
+	 * @return
+	 */
 	public boolean isWorking(){
 		return isWorking;
 	}
 	
+	/**
+	 * Starts the aggregation process
+	 */
 	public void startProcess(){
 		isWorking = true;
 		
@@ -91,6 +120,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		nextStep();
 	}
 	
+	/**
+	 * Start the next step of the aggregation process
+	 */
 	private void nextStep(){
 		listener.onStepInitiated(this, step);
 		step++;
@@ -98,6 +130,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		startAggregation();
 	}
 	
+	/**
+	 * Start the aggregation phase
+	 */
 	private void startAggregation(){
 		countDown = annotations.size();
 		final Enumeration<Content> contents = annotations.keys();		
@@ -107,6 +142,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		}
 	}
 	
+	/**
+	 * Start the estimation phase
+	 */
 	private void startEstimation(){
 		countDown = coherenceEstimators.size();
 		final Enumeration<Annotator> annotators = coherenceEstimators.keys();		
@@ -116,6 +154,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		}
 	}
 	
+	/**
+	 * End of the step
+	 */
 	private void testCompletion(){
 		normalizeWeights();
 		
@@ -131,6 +172,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		startFinalAggregation();
 	}
 
+	/**
+	 * Normalizes the weights of the annotators
+	 */
 	private void normalizeWeights(){
 		double tot = 0;
 		for (double d : weights.values()){
@@ -144,6 +188,10 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		}
 	}
 	
+	/**
+	 * Computes the delta of the current weights WRT the old weights
+	 * @return
+	 */
 	private double computeDelta(){
 		double delta = 0;
 		
@@ -159,6 +207,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		return delta;
 	}
 
+	/**
+	 * Initialize the final aggregation after convergence
+	 */
 	private void startFinalAggregation(){
 		countDown = annotations.size();
 		final Enumeration<Content> contents = annotations.keys();		
@@ -168,6 +219,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		}
 	}
 	
+	/**
+	 * Listener of the aggregator completeness
+	 */
 	@Override
 	public void onAggregationCompleted(Aggregator<A> sender, Collection<Pair<A>> aggregatedAnnotations) {
 		countDown--;
@@ -182,6 +236,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		}
 	}
 
+	/**
+	 * Listener of the weight estimation completion
+	 */
 	@Override
 	public void onEstimationCompleted(CoherenceEstimator<A> sender, double weight) {
 		countDown--;
@@ -193,6 +250,9 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		}
 	}
 	
+	/**
+	 * Listener on the final aggregation completion
+	 */
 	@Override
 	public void onFinalAggregationCompleted(Aggregator<A> sender,
 			A aggregatedAnnotation) {
@@ -211,6 +271,12 @@ public class AggregationManager<A extends Annotation> implements OnEstimationCom
 		}
 	}
 	
+	/**
+	 * Public interface that allow to listen for events on the AggregationManager
+	 * @author B3rn475
+	 *
+	 * @param <A> AnnotationType
+	 */
 	public interface OnProcessListener<A extends Annotation>{
 		public void onStepInitiated(AggregationManager<A> sender,int step);
 		public void onAggregationEnded(AggregationManager<A> sender, Dictionary<Content, A> aggregatedAnnotations);
