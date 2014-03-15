@@ -95,11 +95,17 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * @param aggregatedAnnotation Aggregated annotation output of the process
 	 */
 	protected final void postAggregate(Annotator annotator, A aggregatedAnnotation) {
-		countDown--;
-
-		estimated.put(annotator, aggregatedAnnotation);
+		final boolean ending;
 		
-		if (countDown == 0) {
+		synchronized (this) {
+			countDown--;
+
+			estimated.put(annotator, aggregatedAnnotation);
+			
+			ending = countDown == 0;
+		}
+		
+		if (ending) {
 			endingAggregation();
 		}
 	}

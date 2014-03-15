@@ -84,11 +84,17 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	 * @param weight
 	 */
 	protected final void postEstimation(A annotation, double weight){
-		countDown--;
+		final boolean ending;
 		
-		estimatedWeights.put(annotation, weight);
+		synchronized (this) {
+			countDown--;
+			
+			estimatedWeights.put(annotation, weight);
+			
+			ending = countDown == 0;
+		}
 		
-		if (countDown == 0){
+		if (ending){
 			endingEstimation();
 		}
 	}

@@ -199,16 +199,21 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 */
 	@Override
 	public void onAggregationCompleted(Aggregator<A, C> sender, Map<A, A> aggregatedAnnotations) {
-		countDown--;
+		final boolean ending;
 		
-		for (Entry<A,A> entry : aggregatedAnnotations.entrySet()){
-			final A annotation = entry.getKey();
-			final A estimation = entry.getValue();
-			coherenceEstimators.get(annotation.annotator).put(annotation, estimation);
+		synchronized (aggregatedAnnotations) {
+			countDown--;
+			
+			for (Entry<A,A> entry : aggregatedAnnotations.entrySet()){
+				final A annotation = entry.getKey();
+				final A estimation = entry.getValue();
+				coherenceEstimators.get(annotation.annotator).put(annotation, estimation);
+			}
+			
+			ending = countDown == 0;
 		}
 		
-		
-		if (countDown == 0){
+		if (ending){
 			startEstimation();
 		}
 	}
@@ -218,13 +223,18 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 */
 	@Override
 	public void onEstimationCompleted(CoherenceEstimator<A> sender, Map<A, Double> estimatedWeights) {
-		countDown--;
-		
-		for (Entry<A, Double> entry : estimatedWeights.entrySet()){
-			weights.put(entry.getKey(), entry.getValue());
+		final boolean ending;
+		synchronized (this) {
+			countDown--;
+			
+			for (Entry<A, Double> entry : estimatedWeights.entrySet()){
+				weights.put(entry.getKey(), entry.getValue());
+			}
+			
+			ending = countDown == 0;
 		}
 		
-		if (countDown == 0){
+		if (ending){
 			testCompletion();
 		}
 	}
@@ -235,10 +245,16 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	@Override
 	public void onFinalAggregationCompleted(Aggregator<A, C> sender,
 			A aggregatedAnnotation) {
-		countDown--;
-		finalAggregation.put(aggregatedAnnotation.content,aggregatedAnnotation);
+		final boolean ending;
 		
-		if (countDown == 0){
+		synchronized (this) {
+			countDown--;
+			finalAggregation.put(aggregatedAnnotation.content,aggregatedAnnotation);
+			
+			ending = countDown == 0;
+		}
+		
+		if (ending){
 			isWorking = false;
 			@SuppressWarnings("unchecked")
 			Map<Content, A> tmp = (Map<Content, A>) finalAggregation.clone();
