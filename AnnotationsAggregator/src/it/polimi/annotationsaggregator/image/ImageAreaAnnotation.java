@@ -3,6 +3,8 @@
  */
 package it.polimi.annotationsaggregator.image;
 
+import java.util.Arrays;
+
 import it.polimi.annotationsaggregator.Annotation;
 import it.polimi.annotationsaggregator.Annotator;
 
@@ -24,7 +26,7 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 			throw new IllegalArgumentException("The image cannot be empty");
 		if (image.length != content.width * content.height)
 			throw new IllegalArgumentException("Image Size mismatch");
-		this.image = image;
+		this.image = Arrays.copyOf(image, image.length);
 	}
 	
 	/**

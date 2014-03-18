@@ -34,9 +34,10 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 		final double[] totalSum = new double[length];
 		
 		for (ImageAreaAnnotation a : this){
+			final double weight = weights.get(a);
 			for (int i=0; i<length; i++)
 			{
-				totalSum[i] += a.getPixel(i) * weights.get(a);
+				totalSum[i] += a.getPixel(i) * weight;
 			}
 		}
 		postSumAllAnnotations(weights, new ImageAreaAnnotation(content, Annotator.NONE, totalSum));
