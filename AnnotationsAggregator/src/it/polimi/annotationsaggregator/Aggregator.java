@@ -58,13 +58,34 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	protected abstract void aggregate(Annotator skip,
 			Map<A, Double> weights);
 
+	/**
+	 * This method can be Overloaded by derived classes. 
+	 * It is called before the beginning of the aggregation.
+	 * It can be used to initialize assets needed during the aggregation phase.
+	 * It must call postInitializingAggregation(Map<A, Double> weights) at the end of the initialization
+	 * 
+	 * @param weights
+	 */
 	protected void initializingAggregation(Map<A, Double> weights) {
 		postInitializingAggregation(weights);
 	}
+	
+	/**
+	 * This method can be Overloaded by derived classes. 
+	 * It is called at the end of the aggregation.
+	 * It can be used to tear down the assets used.
+	 * It must call postEndingAggregation(Map<A, Double> weights) at the end.
+	 * 
+	 * @param weights
+	 */
 	protected void endingAggregation(){
 		postEndingAggregation();
 	}
 	
+	/**
+	 * This method must be called at the end of the initialization initializingAggregation(Map<A, Double> weights)
+	 * @param weights
+	 */
 	protected final void postInitializingAggregation(Map<A, Double> weights){
 		estimated.clear();
 		if (isFinal)
@@ -77,6 +98,9 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 		}
 	}
 	
+	/**
+	 * This method must be called at the end of the tear down of the assets endingAggregation()
+	 */
 	protected final void postEndingAggregation(){
 		if (isFinal) {
 			listener.onFinalAggregationCompleted(this, estimated.get(Annotator.NONE));
@@ -144,6 +168,9 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 				A aggregatedAnnotation);
 	}
 
+	/**
+	 * Add an Annotation to the collection to be aggregated. It must has the same content of the Aggregator
+	 */
 	@Override
 	public boolean add(A e) {
 		if (!e.content.equals(content))
@@ -151,6 +178,9 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 		return annotations.add(e);
 	}
 
+	/**
+	 * Add a group of Annotations to the collection to be aggregated. It must has the same content of the Aggregator
+	 */
 	@Override
 	public boolean addAll(Collection<? extends A> c) {
 		for (A a : c){

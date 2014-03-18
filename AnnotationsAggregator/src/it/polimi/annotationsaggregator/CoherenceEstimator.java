@@ -23,6 +23,9 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	private final Map<A, A> pairs;
 	private final HashMap<A, Double> estimatedWeights = new HashMap<A, Double>();
 	
+	/**
+	 * Count Down for the remaining Jobs to complete
+	 */
 	private int countDown = 0;
 	
 	/**
@@ -60,19 +63,35 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 		initializingEstimation();
 	}
 	
+	/**
+	 * Method that is called at the beginning of the process.
+	 * If a derived class need to initialize assets before the process start can override this method.
+	 * It must call postInitializingEstimation() at the end of the initialization
+	 */
 	protected void initializingEstimation() {
 		postInitializingEstimation();
 	}
 	
+	/**
+	 * Method that is called at the end of the process.
+	 * If a derived class need to tear down any assets at the end of the process can override this method.
+	 * It must call postEndingEstimation(); at the end of the tear down.
+	 */
 	protected void endingEstimation(){
 		postEndingEstimation();
 	}
 	
+	/**
+	 * This method must be called at the end of endingEstimation()
+	 */
 	@SuppressWarnings("unchecked")
 	protected final void postEndingEstimation(){
 		listener.onEstimationCompleted(this, (Map<A, Double>) estimatedWeights.clone());
 	}
 
+	/**
+	 * This method must be called after all the assets has been initialized during initliazingEstimation()
+	 */
 	protected final void postInitializingEstimation() {
 		for (A annotation : this.keySet()){
 			estimate(annotation);
