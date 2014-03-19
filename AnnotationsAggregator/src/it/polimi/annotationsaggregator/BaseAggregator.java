@@ -6,6 +6,12 @@ package it.polimi.annotationsaggregator;
 import java.util.Collection;
 
 /**
+ * This is a wrapper of the class Aggregator that force 
+ * the content to be of the base class Content
+ * and the annotator to be of the base class Annotator
+ * 
+ * This can be used to avoid to type Content and Annotator over and over again in the templates
+ * 
  * @author B3rn475
  *
  */

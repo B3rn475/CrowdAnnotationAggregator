@@ -4,6 +4,12 @@
 package it.polimi.annotationsaggregator;
 
 /**
+ * This class is just a wrapper of the aggregation manager that force 
+ * the content to be of the base class Content
+ * and the annotator to be of the base class Annotator
+ * 
+ * It can be used to avoid to define Content and Annotator over and over again in the templates
+ * 
  * @author B3rn475
  *
  */
