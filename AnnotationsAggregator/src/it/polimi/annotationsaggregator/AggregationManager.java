@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Templated Aggregation Manager that allow to Aggregate a general kind of Annotation
@@ -26,7 +27,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	private final AggregatorFactory<A, C> aggregatorFactory;
 	private final CoherenceEstimatorFactory<A> estimatorFactory;
 	
-	private final Map<A, Double> weights = new HashMap<A, Double>();
+	private final ConcurrentHashMap<A, Double> weights = new ConcurrentHashMap<A, Double>();
 	private boolean isWorking = false;
 	private final double threshold;
 	private final int maxIterations;
@@ -38,7 +39,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	
 	private final Map<C,Aggregator<A, C>> aggregators = new HashMap<C, Aggregator<A, C>>();
 	private final Map<Annotator, CoherenceEstimator<A>> coherenceEstimators = new HashMap<Annotator, CoherenceEstimator<A>>();
-	private final HashMap<C, A> finalAggregation = new HashMap<C, A>();
+	private final ConcurrentHashMap<C, A> finalAggregation = new ConcurrentHashMap<C, A>();
 	
 	/**
 	 * Builder of the AggregatorManager
@@ -201,15 +202,15 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	public void onAggregationCompleted(Aggregator<A, C> sender, Map<A, A> aggregatedAnnotations) {
 		final boolean ending;
 		
+		// do this first to be sure to be the last
+		for (Entry<A,A> entry : aggregatedAnnotations.entrySet()){
+			final A annotation = entry.getKey();
+			final A estimation = entry.getValue();
+			coherenceEstimators.get(annotation.annotator).put(annotation, estimation);
+		}
+		
 		synchronized (aggregatedAnnotations) {
-			countDown--;
-			
-			for (Entry<A,A> entry : aggregatedAnnotations.entrySet()){
-				final A annotation = entry.getKey();
-				final A estimation = entry.getValue();
-				coherenceEstimators.get(annotation.annotator).put(annotation, estimation);
-			}
-			
+			countDown--;			
 			ending = countDown == 0;
 		}
 		
@@ -224,13 +225,14 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	@Override
 	public void onEstimationCompleted(CoherenceEstimator<A> sender, Map<A, Double> estimatedWeights) {
 		final boolean ending;
+		
+		//do this first to be sure to be the last
+		for (Entry<A, Double> entry : estimatedWeights.entrySet()){
+			weights.put(entry.getKey(), entry.getValue());
+		}
+		
 		synchronized (this) {
 			countDown--;
-			
-			for (Entry<A, Double> entry : estimatedWeights.entrySet()){
-				weights.put(entry.getKey(), entry.getValue());
-			}
-			
 			ending = countDown == 0;
 		}
 		
@@ -247,17 +249,16 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 			A aggregatedAnnotation) {
 		final boolean ending;
 		
+		finalAggregation.put(aggregatedAnnotation.content,aggregatedAnnotation); //do this first to be sure to be the last
+		
 		synchronized (this) {
-			countDown--;
-			finalAggregation.put(aggregatedAnnotation.content,aggregatedAnnotation);
-			
+			countDown--;			
 			ending = countDown == 0;
 		}
 		
 		if (ending){
 			isWorking = false;
-			@SuppressWarnings("unchecked")
-			Map<Content, A> tmp = (Map<Content, A>) finalAggregation.clone();
+			Map<C, A> tmp = new HashMap<C,A>(finalAggregation);
 			listener.onAggregationEnded(this, tmp);
 			aggregators.clear();
 			coherenceEstimators.clear();
@@ -274,7 +275,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 */
 	public interface OnProcessListener<A extends Annotation<C, ?>, C extends Content>{
 		public void onStepInitiated(AggregationManager<A, C> sender,int step);
-		public void onAggregationEnded(AggregationManager<A, C> sender, Map<Content, A> aggregatedAnnotations);
+		public void onAggregationEnded(AggregationManager<A, C> sender, Map<C, A> aggregatedAnnotations);
 	}
 
 	@Override

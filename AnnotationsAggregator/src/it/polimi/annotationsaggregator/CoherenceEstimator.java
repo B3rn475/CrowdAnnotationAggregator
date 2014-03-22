@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is a Cohernece Estimator. That allow to generate a weight based on the pairs (annotation . estimation) for each content annotated by the user
@@ -20,8 +21,8 @@ import java.util.Set;
 public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements Map<A,A> {
 	public final Annotator annotator;
 	protected final OnEstimationCompletedListener<A> listener;
-	private final Map<A, A> pairs;
-	private final HashMap<A, Double> estimatedWeights = new HashMap<A, Double>();
+	private final ConcurrentHashMap<A, A> pairs = new ConcurrentHashMap<A, A>();
+	private final ConcurrentHashMap<A, Double> estimatedWeights = new ConcurrentHashMap<A, Double>();
 	
 	/**
 	 * Count Down for the remaining Jobs to complete
@@ -33,18 +34,14 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	 * 
 	 * @param listener Object that listen on events on the 
 	 * @param annotator the Annotator we are estimating
-	 * @param container the container of the pairs
 	 */
-	public CoherenceEstimator(OnEstimationCompletedListener<A> listener, Annotator annotator, Map<A,A> container){
+	public CoherenceEstimator(OnEstimationCompletedListener<A> listener, Annotator annotator){
 		if (listener == null)
 			throw new IllegalArgumentException("The listener cannot be null");
 		if (annotator == null)
 			throw new IllegalArgumentException("The annotator cannot be null");
-		if (container == null)
-			throw new IllegalArgumentException("The container cannot be null");
 		this.listener = listener;
 		this.annotator = annotator;
-		this.pairs = container;
 	}
 	
 	/**
@@ -84,9 +81,8 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	/**
 	 * This method must be called at the end of endingEstimation()
 	 */
-	@SuppressWarnings("unchecked")
 	protected final void postEndingEstimation(){
-		listener.onEstimationCompleted(this, (Map<A, Double>) estimatedWeights.clone());
+		listener.onEstimationCompleted(this, new HashMap<A, Double>(estimatedWeights));
 	}
 
 	/**
@@ -105,11 +101,10 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	protected final void postEstimation(A annotation, double weight){
 		final boolean ending;
 		
+		estimatedWeights.put(annotation, weight); // do this first to be sure to be the last
+		
 		synchronized (this) {
-			countDown--;
-			
-			estimatedWeights.put(annotation, weight);
-			
+			countDown--;			
 			ending = countDown == 0;
 		}
 		

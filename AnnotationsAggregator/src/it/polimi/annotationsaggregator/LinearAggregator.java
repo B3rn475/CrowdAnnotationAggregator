@@ -3,9 +3,8 @@
  */
 package it.polimi.annotationsaggregator;
 
-import java.util.Collection;
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @author B3rn475
@@ -14,12 +13,12 @@ import java.util.Map;
 public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Content> extends Aggregator<A, C> {
 
 	private A aggregatedAnnotation = null;
-	private Hashtable<Annotator, A> lookup = null;
+	private final HashMap<Annotator, A> lookup = new HashMap<Annotator, A>();
 	
 	protected LinearAggregator(
 			it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener<A, C> listener,
-			C content, Collection<A> container) {
-		super(listener, content, container);
+			C content) {
+		super(listener, content);
 	}
 
 	@Override
@@ -35,7 +34,6 @@ public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Con
 
 	@Override
 	protected final void initializingAggregation(Map<A, Double> weights) {
-		lookup = new Hashtable<Annotator, A>();
 		for (A a : this){
 			lookup.put(a.annotator, a);
 		}
@@ -57,7 +55,7 @@ public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Con
 	@Override
 	protected final void endingAggregation() {
 		aggregatedAnnotation = null;
-		lookup = null;
+		lookup.clear();
 		postEndingAggregation();
 	}
 

@@ -3,8 +3,6 @@
  */
 package it.polimi.annotationsaggregator.image;
 
-import java.util.Map;
-
 import it.polimi.annotationsaggregator.Annotator;
 import it.polimi.annotationsaggregator.LinearCoherenceEstimator;
 
@@ -16,8 +14,8 @@ public final class ImageAreaCoherenceEstimator extends LinearCoherenceEstimator<
 
 	public ImageAreaCoherenceEstimator(
 			it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener<ImageAreaAnnotation> listener,
-			Annotator annotator, Map<ImageAreaAnnotation, ImageAreaAnnotation> container) {
-		super(listener, annotator, container);
+			Annotator annotator) {
+		super(listener, annotator);
 	}
 
 	@Override

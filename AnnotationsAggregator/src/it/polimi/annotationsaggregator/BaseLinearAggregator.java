@@ -3,8 +3,6 @@
  */
 package it.polimi.annotationsaggregator;
 
-import java.util.Collection;
-
 /**
  * This is a wrapper of the class LinearAggregator that force 
  * the content to be of the base class Content
@@ -19,8 +17,8 @@ public abstract class BaseLinearAggregator<A extends BaseAnnotation> extends Lin
 
 	protected BaseLinearAggregator(
 			OnAggregationCompletedListener<A, Content> listener,
-			Content content, Collection<A> container) {
-		super(listener, content, container);
+			Content content) {
+		super(listener, content);
 	}
 
 	public interface OnBaseLinearAggregationCompletedListener<A extends BaseAnnotation> extends OnAggregationCompletedListener<A, Content>{

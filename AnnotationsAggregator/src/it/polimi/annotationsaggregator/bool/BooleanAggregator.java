@@ -1,6 +1,5 @@
 package it.polimi.annotationsaggregator.bool;
 
-import java.util.Collection;
 import java.util.Map;
 
 import it.polimi.annotationsaggregator.Annotator;
@@ -11,8 +10,8 @@ public final class BooleanAggregator extends BaseLinearAggregator<BooleanAnnotat
 	
 	public BooleanAggregator(
 			OnAggregationCompletedListener<BooleanAnnotation, Content> listener,
-			Content content, Collection<BooleanAnnotation> container) {
-		super(listener, content, container);
+			Content content) {
+		super(listener, content);
 	}
 
 	@Override

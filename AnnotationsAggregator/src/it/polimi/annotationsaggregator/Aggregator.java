@@ -3,10 +3,13 @@
  */
 package it.polimi.annotationsaggregator;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Aggregator class that allow to aggregate annotations.
@@ -19,29 +22,25 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 
 	protected final OnAggregationCompletedListener<A, C> listener;
 
-	private final Collection<A> annotations;
+	private final Collection<A> annotations = Collections.synchronizedCollection(new ArrayList<A>());
 
 	private boolean isFinal = false;
 	private long countDown = 0;
-	private final HashMap<Annotator, A> estimated = new HashMap<Annotator, A>();
+	private final ConcurrentHashMap<Annotator, A> estimated = new ConcurrentHashMap<Annotator, A>();
 
 	/**
 	 * Build a new aggregator
 	 * @param listener an objects that listen on events of the aggregator
 	 * @param content Content that is going to be aggregated by this object
-	 * @param container An container for the annotations
 	 */
 	protected Aggregator(OnAggregationCompletedListener<A, C> listener,
-			C content, Collection<A> container) {
+			C content) {
 		if (listener == null)
 			throw new IllegalArgumentException("The listener cannot be null");
 		if (content == null)
 			throw new IllegalArgumentException("The content cannot be null");
-		if (container == null)
-			throw new IllegalArgumentException("The container cannot be null");
 		this.listener = listener;
 		this.content = content;
-		this.annotations = container;
 	}
 
 	/**
@@ -120,11 +119,10 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	protected final void postAggregate(Annotator annotator, A aggregatedAnnotation) {
 		final boolean ending;
 		
+		estimated.put(annotator, aggregatedAnnotation); // do this first to be sure to be the last
+		
 		synchronized (this) {
 			countDown--;
-
-			estimated.put(annotator, aggregatedAnnotation);
-			
 			ending = countDown == 0;
 		}
 		

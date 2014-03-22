@@ -3,7 +3,6 @@
  */
 package it.polimi.annotationsaggregator.image;
 
-import java.util.Collection;
 import java.util.Map;
 
 import it.polimi.annotationsaggregator.Annotator;
@@ -23,8 +22,8 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 	 */
 	protected ImageAreaAggregator(
 			OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
-			ImageContent content, Collection<ImageAreaAnnotation> container) {
-		super(listener, content, container);
+			ImageContent content) {
+		super(listener, content);
 	}
 
 	@Override

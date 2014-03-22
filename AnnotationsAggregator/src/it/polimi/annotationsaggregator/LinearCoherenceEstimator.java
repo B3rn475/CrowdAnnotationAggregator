@@ -3,8 +3,7 @@
  */
 package it.polimi.annotationsaggregator;
 
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author B3rn475
@@ -14,12 +13,12 @@ public abstract class LinearCoherenceEstimator<A extends Annotation<?, ?>> exten
 
 	private double total = 0;
 	private int countDown = 0;
-	private final Hashtable<A, Double> lookup = new Hashtable<A, Double>();
+	private final ConcurrentHashMap<A, Double> lookup = new ConcurrentHashMap<A, Double>();
 	
 	public LinearCoherenceEstimator(
 			it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener<A> listener,
-			Annotator annotator, Map<A,A> container) {
-		super(listener, annotator, container);
+			Annotator annotator) {
+		super(listener, annotator);
 	}
 	
 	@Override
@@ -48,11 +47,11 @@ public abstract class LinearCoherenceEstimator<A extends Annotation<?, ?>> exten
 	protected final void postCamparePair(A annotation, double weight){
 		final boolean ending;
 		
+		lookup.put(annotation, weight); // do this first to be sure to be the last
+		
 		synchronized (this) {
 			countDown--;
-			lookup.put(annotation, weight);
 			total += weight;
-			
 			ending = countDown == 0;
 		}
 		

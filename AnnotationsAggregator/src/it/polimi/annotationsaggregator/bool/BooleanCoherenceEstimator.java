@@ -3,8 +3,6 @@
  */
 package it.polimi.annotationsaggregator.bool;
 
-import java.util.Map;
-
 import it.polimi.annotationsaggregator.Annotator;
 import it.polimi.annotationsaggregator.LinearCoherenceEstimator;
 
@@ -16,9 +14,8 @@ public final class BooleanCoherenceEstimator extends LinearCoherenceEstimator<Bo
 
 	public BooleanCoherenceEstimator(
 			it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener<BooleanAnnotation> listener,
-			Annotator annotator, Map<BooleanAnnotation, BooleanAnnotation> pairs) {
-		super(listener, annotator, pairs);
-		// TODO Auto-generated constructor stub
+			Annotator annotator) {
+		super(listener, annotator);
 	}
 
 	@Override
