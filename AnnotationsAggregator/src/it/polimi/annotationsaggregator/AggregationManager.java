@@ -33,11 +33,23 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	private final int maxIterations;
 	
 	private int step = 0;
+	/**
+	 * must be synchronized
+	 */
 	private long countDown = 0;
 	
+	/**
+	 * no need to synchronize it is used by one thread only.
+	 */
 	private final Map<A, Double> lastWeights = new HashMap<A, Double>();
 	
-	private final Map<C,Aggregator<A, C>> aggregators = new HashMap<C, Aggregator<A, C>>();
+	/**
+	 * no need to synchronize it is read-only when multi-thread are active
+	 */
+	private final Map<C,Aggregator<A, C>> aggregators = new HashMap<C, Aggregator<A, C>>(); 
+	/**
+	 * no need to synchronize it is read-only when multi-thread are active
+	 */
 	private final Map<Annotator, CoherenceEstimator<A>> coherenceEstimators = new HashMap<Annotator, CoherenceEstimator<A>>();
 	private final ConcurrentHashMap<C, A> finalAggregation = new ConcurrentHashMap<C, A>();
 	
@@ -209,7 +221,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 			coherenceEstimators.get(annotation.annotator).put(annotation, estimation);
 		}
 		
-		synchronized (aggregatedAnnotations) {
+		synchronized (this) {
 			countDown--;			
 			ending = countDown == 0;
 		}
