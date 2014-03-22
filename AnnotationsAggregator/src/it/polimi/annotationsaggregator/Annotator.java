@@ -15,6 +15,13 @@ public class Annotator {
 	 */
 	public final int id;
 	
+	private Annotator(int id, boolean checks)
+	{
+		if (checks && id < 1)
+			throw new IllegalArgumentException("Annotator ID must be greater than Zero");
+		this.id = id;
+	}
+	
 	/**
 	 * Initialized a new Annotator
 	 * @param id Id of the annotator, must the greater than Zero
@@ -55,5 +62,5 @@ public class Annotator {
 	/**
 	 * No Annotator, it is used to reference temporary Annotations that are not referred to a particular Annotator
 	 */
-	public final static Annotator NONE = new Annotator(0);
+	public final static Annotator NONE = new Annotator(0, false);
 }
