@@ -5,7 +5,6 @@ package it.polimi.annotationsaggregator;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 
 	private boolean isFinal = false;
 	private long countDown = 0;
-	private final Hashtable<Annotator, A> estimated = new Hashtable<Annotator, A>();
+	private final HashMap<Annotator, A> estimated = new HashMap<Annotator, A>();
 
 	/**
 	 * Build a new aggregator
