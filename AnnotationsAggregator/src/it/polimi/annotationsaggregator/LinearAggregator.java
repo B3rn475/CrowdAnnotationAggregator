@@ -3,7 +3,6 @@
  */
 package it.polimi.annotationsaggregator;
 
-import java.util.Map;
 import java.util.HashMap;
 
 /**
@@ -22,30 +21,29 @@ public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Con
 	}
 
 	@Override
-	protected final void aggregate(Annotator skip,
-			Map<A, Double> weights) {
+	protected final void aggregate(Annotator skip) {
 		if (skip.equals(Annotator.NONE) || !lookup.containsKey(skip)) {
 			postAggregate(skip, aggregatedAnnotation);
 		} else {
 			final A annotation = lookup.get(skip);
-			subtractAnnotation(aggregatedAnnotation, annotation, weights.get(annotation));
+			subtractAnnotation(aggregatedAnnotation, annotation, getWeights().get(annotation));
 		}
 	}
 
 	@Override
-	protected final void initializingAggregation(Map<A, Double> weights) {
+	protected final void initializingAggregation() {
 		for (A a : this){
 			lookup.put(a.annotator, a);
 		}
-		sumAllAnnotations(weights);
+		sumAllAnnotations();
 	}
 
-	protected abstract void sumAllAnnotations(Map<A, Double> weights);
+	protected abstract void sumAllAnnotations();
 	protected abstract void subtractAnnotation(A aggregatedAnnotation, A annotation, double weight);
 
-	protected final void postSumAllAnnotations(Map<A, Double> weights, A aggregatedAnnotation){
+	protected final void postSumAllAnnotations(A aggregatedAnnotation){
 		this.aggregatedAnnotation = aggregatedAnnotation;
-		postInitializingAggregation(weights);
+		postInitializingAggregation();
 	}
 	
 	protected final void postSubtractAnnotation(A annotation){

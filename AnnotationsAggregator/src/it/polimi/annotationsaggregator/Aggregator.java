@@ -24,6 +24,8 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 
 	private final Collection<A> annotations = Collections.synchronizedCollection(new ArrayList<A>());
 
+	private Map<A, Double> weights = null;
+	
 	private boolean isFinal = false;
 	private long countDown = 0;
 	private final ConcurrentHashMap<Annotator, A> estimated = new ConcurrentHashMap<Annotator, A>();
@@ -43,6 +45,10 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 		this.content = content;
 	}
 
+	protected Map<A, Double> getWeights(){
+		return weights;
+	}
+	
 	/**
 	 * Method that need to be implemented by specialized classes
 	 * 
@@ -53,8 +59,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * @param skip annotator to skip
 	 * @param weights weights to use the process
 	 */
-	protected abstract void aggregate(Annotator skip,
-			Map<A, Double> weights);
+	protected abstract void aggregate(Annotator skip);
 
 	/**
 	 * This method can be Overloaded by derived classes. 
@@ -64,8 +69,8 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * 
 	 * @param weights
 	 */
-	protected void initializingAggregation(Map<A, Double> weights) {
-		postInitializingAggregation(weights);
+	protected void initializingAggregation() {
+		postInitializingAggregation();
 	}
 	
 	/**
@@ -84,14 +89,14 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * This method must be called at the end of the initialization initializingAggregation(Map<A, Double> weights)
 	 * @param weights
 	 */
-	protected final void postInitializingAggregation(Map<A, Double> weights){
+	protected final void postInitializingAggregation(){
 		estimated.clear();
 		if (isFinal)
 		{
-			aggregate(Annotator.NONE, weights);
+			aggregate(Annotator.NONE);
 		} else {
 			for (A annotation : annotations) {
-				aggregate(annotation.annotator, weights);
+				aggregate(annotation.annotator);
 			}
 		}
 	}
@@ -100,6 +105,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * This method must be called at the end of the tear down of the assets endingAggregation()
 	 */
 	protected final void postEndingAggregation(){
+		weights = null;
 		if (isFinal) {
 			listener.onFinalAggregationCompleted(this, estimated.get(Annotator.NONE));
 		} else {
@@ -138,7 +144,8 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	public final void aggregate(Map<A, Double> weights) {
 		isFinal = false;
 		countDown = annotations.size();
-		initializingAggregation(weights);
+		this.weights = java.util.Collections.unmodifiableMap(weights);
+		initializingAggregation();
 	}
 
 	/**
@@ -148,7 +155,8 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	public final void aggregateFinal(Map<A, Double> weights) {
 		isFinal = true;
 		countDown = 1;
-		initializingAggregation(weights);
+		this.weights = java.util.Collections.unmodifiableMap(weights);
+		initializingAggregation();
 	}
 
 	/**

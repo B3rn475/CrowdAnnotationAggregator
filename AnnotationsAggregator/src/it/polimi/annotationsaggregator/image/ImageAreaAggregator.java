@@ -3,8 +3,6 @@
  */
 package it.polimi.annotationsaggregator.image;
 
-import java.util.Map;
-
 import it.polimi.annotationsaggregator.Annotator;
 import it.polimi.annotationsaggregator.LinearAggregator;
 
@@ -27,19 +25,18 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 	}
 
 	@Override
-	protected void sumAllAnnotations(
-			Map<ImageAreaAnnotation, Double> weights) {
+	protected void sumAllAnnotations() {
 		final int length = content.width*content.height;
 		final double[] totalSum = new double[length];
 		
 		for (ImageAreaAnnotation a : this){
-			final double weight = weights.get(a);
+			final double weight = getWeights().get(a);
 			for (int i=0; i<length; i++)
 			{
 				totalSum[i] += a.getPixel(i) * weight;
 			}
 		}
-		postSumAllAnnotations(weights, new ImageAreaAnnotation(content, Annotator.NONE, totalSum));
+		postSumAllAnnotations(new ImageAreaAnnotation(content, Annotator.NONE, totalSum));
 	}
 
 	@Override
