@@ -18,11 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @param <A> AnnotationType
  */
-public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements Map<A,A> {
+public abstract class CoherenceEstimator<A extends Annotation<C, ?>, C extends Content> implements Map<A,A> {
 	public final Annotator annotator;
-	protected final OnEstimationCompletedListener<A> listener;
+	protected final OnEstimationCompletedListener<A,C> listener;
 	private final ConcurrentHashMap<A, A> pairs = new ConcurrentHashMap<A, A>();
 	private final ConcurrentHashMap<A, Double> estimatedWeights = new ConcurrentHashMap<A, Double>();
+	private final ConcurrentHashMap<C, A> annotations = new ConcurrentHashMap<C, A>();
 	
 	/**
 	 * Count Down for the remaining Jobs to complete
@@ -35,7 +36,7 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	 * @param listener Object that listen on events on the 
 	 * @param annotator the Annotator we are estimating
 	 */
-	public CoherenceEstimator(OnEstimationCompletedListener<A> listener, Annotator annotator){
+	public CoherenceEstimator(OnEstimationCompletedListener<A, C> listener, Annotator annotator){
 		if (listener == null)
 			throw new IllegalArgumentException("The listener cannot be null");
 		if (annotator == null)
@@ -49,7 +50,7 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	 * This method must be implemented by the derived classes
 	 * @param skip
 	 */
-	protected abstract void estimate(A skip);
+	protected abstract void estimate(C skip);
 	
 	/**
 	 * Start the estimation.
@@ -90,7 +91,7 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	 */
 	protected final void postInitializingEstimation() {
 		for (A annotation : this.keySet()){
-			estimate(annotation);
+			estimate(annotation.content);
 		}
 	}
 
@@ -98,10 +99,10 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	 * This method must be called by derived classes at the end on the estimation
 	 * @param weight
 	 */
-	protected final void postEstimation(A annotation, double weight){
+	protected final void postEstimation(C content, double weight){
 		final boolean ending;
 		
-		estimatedWeights.put(annotation, weight); // do this first to be sure to be the last
+		estimatedWeights.put(annotations.get(content), weight); // do this first to be sure to be the last
 		
 		synchronized (this) {
 			countDown--;			
@@ -119,8 +120,8 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 	 *
 	 * @param <A> AnnotationType
 	 */
-	public interface OnEstimationCompletedListener<A extends Annotation<?, ?>>{
-		public void onEstimationCompleted(CoherenceEstimator<A> sender, Map<A, Double> estimatedWeights);
+	public interface OnEstimationCompletedListener<A extends Annotation<C, ?>, C extends Content>{
+		public void onEstimationCompleted(CoherenceEstimator<A, C> sender, Map<A, Double> estimatedWeights);
 	}
 
 	@Override
@@ -172,11 +173,13 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 			throw new IllegalArgumentException("annotation and estimation must be related to the same content");
 		if (annotation.annotator != estimation.annotator)
 			throw new IllegalArgumentException("annotation and estimation must be related to the same annotator");
+		annotations.put(annotation.content, annotation);
 		return pairs.put(annotation, estimation);
 	}
 
 	@Override
 	public void putAll(Map<? extends A, ? extends A> m) {
+		final HashMap<C, A> a = new HashMap<C, A>();
 		for (Entry<? extends A, ? extends A> entry : m.entrySet()){
 			final A annotation = entry.getKey();
 			final A estimation = entry.getValue();
@@ -188,12 +191,18 @@ public abstract class CoherenceEstimator<A extends Annotation<?, ?>> implements 
 				throw new IllegalArgumentException("annotation and estimation must be related to the same content");
 			if (annotation.annotator != estimation.annotator)
 				throw new IllegalArgumentException("annotation and estimation must be related to the same annotator");
+			a.put(annotation.content, annotation);
 		}
+		annotations.putAll(a);
 		pairs.putAll(m);
 	}
 
 	@Override
 	public A remove(Object key) {
+		if (key instanceof Annotation<?,?>){
+			final Annotation<?,?> annotation = (Annotation<?,?>)key;
+			annotations.remove(annotation.content);
+		}
 		return pairs.remove(key);
 	}
 

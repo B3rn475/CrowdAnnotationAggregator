@@ -20,7 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class testBooleanFactory implements OnBaseLinearAggregationCompletedListener<BooleanAnnotation>, OnEstimationCompletedListener<BooleanAnnotation>{
+public class testBooleanFactory implements OnBaseLinearAggregationCompletedListener<BooleanAnnotation>, OnEstimationCompletedListener<BooleanAnnotation, Content>{
 
 	private BooleanFactory factory;
 	Annotator[] annotators;
@@ -161,7 +161,7 @@ public class testBooleanFactory implements OnBaseLinearAggregationCompletedListe
 	 */
 	@Test
 	public void testBooleanFactorybuildEstimatorResult() {
-		CoherenceEstimator<BooleanAnnotation> estimator = factory.buildEstimator(this, Annotator.NONE);
+		CoherenceEstimator<BooleanAnnotation, Content> estimator = factory.buildEstimator(this, Annotator.NONE);
 		assertNotNull("No Estimator built", estimator);
 		
 		estimator.put(annotationsE[0], new BooleanAnnotation(contents[0], annotationsE[0].annotator, true));
@@ -173,7 +173,7 @@ public class testBooleanFactory implements OnBaseLinearAggregationCompletedListe
 
 	@Override
 	public void onEstimationCompleted(
-			CoherenceEstimator<BooleanAnnotation> sender, Map<BooleanAnnotation, Double> estimatedWeights) {
+			CoherenceEstimator<BooleanAnnotation, Content> sender, Map<BooleanAnnotation, Double> estimatedWeights) {
 		assertNotNull("Sender is null",sender);
 		for (int i=0; i<annotationsE.length; i++){
 			System.out.println(Double.toString(estimatedWeights.get(annotationsE[i])));

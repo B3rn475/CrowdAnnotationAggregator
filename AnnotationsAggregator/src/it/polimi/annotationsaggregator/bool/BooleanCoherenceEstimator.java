@@ -4,16 +4,17 @@
 package it.polimi.annotationsaggregator.bool;
 
 import it.polimi.annotationsaggregator.Annotator;
+import it.polimi.annotationsaggregator.Content;
 import it.polimi.annotationsaggregator.LinearCoherenceEstimator;
 
 /**
  * @author b3rn475
  *
  */
-public final class BooleanCoherenceEstimator extends LinearCoherenceEstimator<BooleanAnnotation> {
+public final class BooleanCoherenceEstimator extends LinearCoherenceEstimator<BooleanAnnotation, Content> {
 
 	public BooleanCoherenceEstimator(
-			it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener<BooleanAnnotation> listener,
+			OnEstimationCompletedListener<BooleanAnnotation, Content> listener,
 			Annotator annotator) {
 		super(listener, annotator);
 	}

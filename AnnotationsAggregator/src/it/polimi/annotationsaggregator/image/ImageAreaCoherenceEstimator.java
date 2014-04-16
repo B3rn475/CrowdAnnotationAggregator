@@ -10,10 +10,10 @@ import it.polimi.annotationsaggregator.LinearCoherenceEstimator;
  * @author B3rn475
  *
  */
-public final class ImageAreaCoherenceEstimator extends LinearCoherenceEstimator<ImageAreaAnnotation> {
+public final class ImageAreaCoherenceEstimator extends LinearCoherenceEstimator<ImageAreaAnnotation, ImageContent> {
 
 	public ImageAreaCoherenceEstimator(
-			it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener<ImageAreaAnnotation> listener,
+			OnEstimationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			Annotator annotator) {
 		super(listener, annotator);
 	}

@@ -16,11 +16,11 @@ import it.polimi.annotationsaggregator.Content;
  *
  */
 public final class BooleanFactory implements BaseAggregatorFactory<BooleanAnnotation>,
-		CoherenceEstimatorFactory<BooleanAnnotation> {
+		CoherenceEstimatorFactory<BooleanAnnotation, Content> {
 
 	@Override
-	public CoherenceEstimator<BooleanAnnotation> buildEstimator(
-			OnEstimationCompletedListener<BooleanAnnotation> manager, Annotator annotator) {
+	public CoherenceEstimator<BooleanAnnotation, Content> buildEstimator(
+			OnEstimationCompletedListener<BooleanAnnotation, Content> manager, Annotator annotator) {
 		return new BooleanCoherenceEstimator(manager, annotator);
 	}
 

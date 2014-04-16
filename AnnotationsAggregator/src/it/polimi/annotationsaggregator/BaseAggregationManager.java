@@ -18,7 +18,7 @@ public abstract class BaseAggregationManager<A extends BaseAnnotation> extends A
 	public BaseAggregationManager(
 			OnBaseProcessListener<A> listener,
 			BaseAggregatorFactory<A> aggregatorFactory,
-			CoherenceEstimatorFactory<A> estimatorFactory, double threshold,
+			CoherenceEstimatorFactory<A, Content> estimatorFactory, double threshold,
 			int maxIterations) {
 		super(listener, aggregatorFactory, estimatorFactory, threshold, maxIterations);
 	}

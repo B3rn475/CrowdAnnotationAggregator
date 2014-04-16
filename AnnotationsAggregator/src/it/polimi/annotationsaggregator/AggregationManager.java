@@ -21,11 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @param <A> Annotation type
  */
-public class AggregationManager<A extends Annotation<C, ?>, C extends Content> implements Map<A,Double>, OnEstimationCompletedListener<A>, OnAggregationCompletedListener<A,C> {
+public class AggregationManager<A extends Annotation<C, ?>, C extends Content> implements Map<A,Double>, OnEstimationCompletedListener<A,C>, OnAggregationCompletedListener<A,C> {
 	private final OnProcessListener<A, C> listener;
 	
 	private final AggregatorFactory<A, C> aggregatorFactory;
-	private final CoherenceEstimatorFactory<A> estimatorFactory;
+	private final CoherenceEstimatorFactory<A, C> estimatorFactory;
 	
 	private final ConcurrentHashMap<A, Double> weights = new ConcurrentHashMap<A, Double>();
 	private boolean isWorking = false;
@@ -50,7 +50,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	/**
 	 * no need to synchronize it is read-only when multi-thread are active
 	 */
-	private final Map<Annotator, CoherenceEstimator<A>> coherenceEstimators = new HashMap<Annotator, CoherenceEstimator<A>>();
+	private final Map<Annotator, CoherenceEstimator<A,C>> coherenceEstimators = new HashMap<Annotator, CoherenceEstimator<A,C>>();
 	private final ConcurrentHashMap<C, A> finalAggregation = new ConcurrentHashMap<C, A>();
 	
 	/**
@@ -62,7 +62,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 * @param threshold weights threshold under which the process stops.
 	 * @param maxIterations maximum number of iterations, in order to avoid infinite loops in case of non converting solutions
 	 */
-	public AggregationManager(OnProcessListener<A,C> listener, AggregatorFactory<A,C> aggregatorFactory, CoherenceEstimatorFactory<A> estimatorFactory, double threshold, int maxIterations) {
+	public AggregationManager(OnProcessListener<A,C> listener, AggregatorFactory<A,C> aggregatorFactory, CoherenceEstimatorFactory<A,C> estimatorFactory, double threshold, int maxIterations) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener cannot be null");
 		if (aggregatorFactory == null)
@@ -141,7 +141,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 */
 	private void startEstimation(){
 		countDown = coherenceEstimators.size();
-		for (CoherenceEstimator<A> estimator : coherenceEstimators.values()){
+		for (CoherenceEstimator<A,C> estimator : coherenceEstimators.values()){
 			estimator.estimate();
 		}
 	}
@@ -235,7 +235,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 * Listener of the weight estimation completion
 	 */
 	@Override
-	public void onEstimationCompleted(CoherenceEstimator<A> sender, Map<A, Double> estimatedWeights) {
+	public void onEstimationCompleted(CoherenceEstimator<A,C> sender, Map<A, Double> estimatedWeights) {
 		final boolean ending;
 		
 		//do this first to be sure to be the last
