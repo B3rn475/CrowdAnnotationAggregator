@@ -10,7 +10,6 @@ import it.polimi.annotationsaggregator.Annotator;
 import it.polimi.annotationsaggregator.CoherenceEstimator;
 import it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener;
 import it.polimi.annotationsaggregator.CoherenceEstimatorFactory;
-import it.polimi.annotationsaggregator.Content;
 
 /**
  * @author B3rn475
@@ -28,7 +27,7 @@ public final class ImageAreaFactory implements CoherenceEstimatorFactory<ImageAr
 	@Override
 	public Aggregator<ImageAreaAnnotation, ImageContent> buildAggregator(
 			OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
-			Content content) {
+			ImageContent content) {
 		return null;
 	}
 

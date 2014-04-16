@@ -12,5 +12,5 @@ import it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener
  *
  */
 public interface AggregatorFactory<A extends Annotation<C, ?>, C extends Content> {
-	public Aggregator<A,C> buildAggregator(OnAggregationCompletedListener<A,C> listener, Content content);
+	public Aggregator<A,C> buildAggregator(OnAggregationCompletedListener<A,C> listener, C content);
 }
