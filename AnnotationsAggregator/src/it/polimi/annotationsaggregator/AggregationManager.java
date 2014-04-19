@@ -6,6 +6,7 @@ package it.polimi.annotationsaggregator;
 import it.polimi.annotationsaggregator.Aggregator.OnAggregationCompletedListener;
 import it.polimi.annotationsaggregator.CoherenceEstimator.OnEstimationCompletedListener;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,15 +97,10 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 		
 		step = 0;
 		
-		//avoid to force the external code to normalize weights
-		normalizeWeights();
-		
-		//save last weights to test threshold
-		lastWeights.clear();
-		lastWeights.putAll(weights);
+		removeInvalidAnnotations();
 		
 		for (A annotation : weights.keySet()){
-			final Aggregator<A,C> aggregator;
+			final Aggregator<A, C> aggregator;
 			if (aggregators.containsKey(annotation.content)){
 				aggregator = aggregators.get(annotation.content);
 			} else {
@@ -117,9 +113,61 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 			}
 		}
 		
+		//avoid to force the external code to normalize weights
+		normalizeWeights();
+		
+		//save last weights to test threshold
+		lastWeights.clear();
+		lastWeights.putAll(weights);
+		
 		nextStep();
 	}
 	
+	/**
+	 * Remove all the annotations realted to:
+	 * 		Content that has only 1 annotation
+	 * 		Annotators that has only 1 annotation
+	 */
+	private void removeInvalidAnnotations() {
+		final HashMap<C, ArrayList<A>> annotations = new HashMap<C, ArrayList<A>>();
+		final HashMap<Annotator, ArrayList<A>> annotators = new HashMap<Annotator, ArrayList<A>>(); 
+		
+		for (A annotation : weights.keySet()){
+			final ArrayList<A> alist;
+			if (annotations.containsKey(annotation.content)){
+				alist = annotations.get(annotation.content);
+			} else {
+				alist = new ArrayList<A>();
+				annotations.put(annotation.content, alist);
+			}
+			alist.add(annotation);
+			final ArrayList<A> blist;
+			if (annotators.containsKey(annotation.annotator)){
+				blist = annotators.get(annotation.annotator);
+			} else {
+				blist = new ArrayList<A>();
+				annotators.put(annotation.annotator, blist);
+			}
+			blist.add(annotation);
+		}
+		
+		final ArrayList<A> removed = new ArrayList<A>();
+		for (Entry<C,ArrayList<A>> entry : annotations.entrySet()){
+			if (entry.getValue().size() == 1){
+				removed.addAll(entry.getValue());
+			}
+		}
+		for (Entry<Annotator,ArrayList<A>> entry : annotators.entrySet()){
+			if (entry.getValue().size() == 1){
+				removed.addAll(entry.getValue());
+			}
+		}
+		
+		for (A annotation : removed){
+			weights.remove(annotation);
+		}
+	}
+
 	/**
 	 * Start the next step of the aggregation process
 	 */
