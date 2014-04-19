@@ -59,16 +59,27 @@ public class testBooleanAggregationManager implements OnBaseProcessListener<Bool
 
 	@Override
 	public void onStepInitiated(AggregationManager<BooleanAnnotation, Content> sender, int step) {
+		assertNotNull("Sender is null", sender);
 		assertTrue("Step is negative", step >= 0);
 	}
 
 	@Override
 	public void onAggregationEnded(AggregationManager<BooleanAnnotation, Content> sender, Map<Content, BooleanAnnotation> aggregatedAnnotations) {
+		assertNotNull("Sender is null", sender);
 		boolean value = true;
 		for (int k=0; k < contents.length; k++){
 			assertEquals("Estimation Error", value, aggregatedAnnotations.get(contents[k]).getValue());
 			value = !value;
 		}
+	}
+
+	@Override
+	public void onStepCompleted(
+			AggregationManager<BooleanAnnotation, Content> sender, int step,
+			double delta) {
+		assertNotNull("Sender is null", sender);
+		assertTrue("Step is negative", step >= 0);
+		assertTrue("Delta is negative", delta >= 0.0);
 	}
 
 }

@@ -96,6 +96,9 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 		
 		step = 0;
 		
+		//avoid to force the external code to normalize weights
+		normalizeWeights();
+		
 		//save last weights to test threshold
 		lastWeights.putAll(weights);
 		
@@ -152,9 +155,12 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	private void testCompletion(){
 		normalizeWeights();
 		
+		final double delta = computeDelta();
+		
+		listener.onStepCompleted(this, step, delta);
+		
 		if (step < maxIterations)
 		{
-			final double delta = computeDelta();
 			if (delta > threshold){
 				nextStep();
 				return;
@@ -287,6 +293,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 */
 	public interface OnProcessListener<A extends Annotation<C, ?>, C extends Content>{
 		public void onStepInitiated(AggregationManager<A, C> sender,int step);
+		public void onStepCompleted(AggregationManager<A, C> sender,int step, double delta);
 		public void onAggregationEnded(AggregationManager<A, C> sender, Map<C, A> aggregatedAnnotations);
 	}
 
