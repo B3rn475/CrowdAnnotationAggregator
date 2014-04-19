@@ -11,7 +11,7 @@ public class Content {
 	/**
 	 * The Id of the Content
 	 */
-	public int id;
+	public final int id;
 	
 	/**
 	 * Initialize a new Content
