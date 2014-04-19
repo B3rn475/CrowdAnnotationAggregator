@@ -191,16 +191,18 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 	 * @return
 	 */
 	private double computeDelta(){
-		double delta = 0;
+		double nominator = 0;
+		double denominator = 0;
 		
 		for(A annotation : weights.keySet()){
 			double weight = weights.get(annotation);
 			double lastWeight = lastWeights.get(annotation);
 			
-			delta += Math.abs(weight - lastWeight);
+			nominator += Math.abs(weight - lastWeight);
+			denominator += Math.abs(lastWeight);
 		}
 		
-		return delta;
+		return nominator / denominator;
 	}
 
 	/**
