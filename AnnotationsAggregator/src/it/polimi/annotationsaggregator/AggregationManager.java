@@ -100,6 +100,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 		normalizeWeights();
 		
 		//save last weights to test threshold
+		lastWeights.clear();
 		lastWeights.putAll(weights);
 		
 		for (A annotation : weights.keySet()){
