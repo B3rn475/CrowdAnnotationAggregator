@@ -24,7 +24,7 @@ public class Annotator {
 	
 	/**
 	 * Initialized a new Annotator
-	 * @param id Id of the annotator, must the greater than Zero
+	 * @param id Id of the annotator, must be greater than Zero
 	 */
 	public Annotator(int id){
 		if (id < 1)
