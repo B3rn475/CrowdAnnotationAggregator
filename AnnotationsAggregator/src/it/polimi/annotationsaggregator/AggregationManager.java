@@ -139,10 +139,6 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		// avoid to force the external code to normalize weights
 		normalizeWeights();
 
-		// save last weights to test threshold
-		lastWeights.clear();
-		lastWeights.putAll(weights);
-
 		nextStep();
 	}
 
@@ -201,6 +197,10 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	private void nextStep() {
 		listener.onStepInitiated(this, step);
 
+		// save last weights to test threshold
+		lastWeights.clear();
+		lastWeights.putAll(weights);
+		
 		startAggregation();
 	}
 
