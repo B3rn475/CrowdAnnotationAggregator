@@ -400,7 +400,6 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	@Override
 	public void clear() {
 		weights.clear();
-		lastWeights.clear();
 	}
 
 	@Override
