@@ -200,7 +200,6 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	 */
 	private void nextStep() {
 		listener.onStepInitiated(this, step);
-		step++;
 
 		startAggregation();
 	}
@@ -234,6 +233,8 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		final double delta = computeDelta();
 
 		listener.onStepCompleted(this, step, delta);
+		
+		step++;
 
 		if (step < maxIterations) {
 			if (delta > threshold) {
