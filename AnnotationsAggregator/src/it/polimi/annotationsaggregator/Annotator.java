@@ -40,9 +40,14 @@ public class Annotator {
 		return id;
 	}
 
+
+	
 	@Override
 	public int hashCode() {
-		return id;
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
 	}
 
 	@Override
@@ -58,7 +63,9 @@ public class Annotator {
 			return false;
 		return true;
 	}
-	
+
+
+
 	/**
 	 * No Annotator, it is used to reference temporary Annotations that are not referred to a particular Annotator
 	 */
