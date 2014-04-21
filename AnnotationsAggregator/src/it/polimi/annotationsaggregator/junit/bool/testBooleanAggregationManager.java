@@ -20,29 +20,30 @@ public class testBooleanAggregationManager implements OnBaseProcessListener<Bool
 	BooleanAggregationManager manager;
 	Annotator[] annotators;
 	Content[] contents;
-	int annotatorsNumber = 3;
-	int contentsNumber = 2;
+	int annotatorsNumber = 5;
+	int contentsNumber = 5;
 	
 	@Before
 	public void setUp() throws Exception {
-		annotators = new Annotator[annotatorsNumber];
-		contents = new Content[contentsNumber];
+		annotators = new Annotator[annotatorsNumber + 1];
+		contents = new Content[contentsNumber + 1];
 		manager = new BooleanAggregationManager(this, 0.01, 100);
 		
-		for (int k=0; k < contents.length; k++){
+		for (int k=0; k < contentsNumber; k++){
 			contents[k] = new Content(k+1);
 		}
-		
-		double weight = 1.0 / annotators.length / contents.length;
-		
-		for (int i=0; i < annotators.length; i++){
+		contents[contentsNumber] = new Content(contentsNumber + 1);
+			
+		for (int i=0; i < annotatorsNumber; i++){
 			annotators[i] = new Annotator(i+1);
 			boolean value = i < annotatorsNumber / 2 + 1;
-			for (int k=0; k < contents.length; k++){
-				manager.put(new BooleanAnnotation(contents[k], annotators[i], value),weight);
+			for (int k=0; k < contentsNumber; k++){
+				manager.put(new BooleanAnnotation(contents[k], annotators[i], value), 1.0);
 				value = !value;
 			}
 		}
+		annotators[annotatorsNumber] = new Annotator(annotatorsNumber + 1);
+		manager.put(new BooleanAnnotation(contents[contentsNumber], annotators[annotatorsNumber]), 1.0);
 	}
 
 	@After
@@ -54,6 +55,7 @@ public class testBooleanAggregationManager implements OnBaseProcessListener<Bool
 
 	@Test
 	public void test() {
+		assertEquals(annotatorsNumber * contentsNumber + 1, manager.size());
 		manager.startProcess();
 	}
 
@@ -61,13 +63,14 @@ public class testBooleanAggregationManager implements OnBaseProcessListener<Bool
 	public void onStepInitiated(AggregationManager<BooleanAnnotation, Content> sender, int step) {
 		assertNotNull("Sender is null", sender);
 		assertTrue("Step is negative", step >= 0);
+		assertEquals(annotatorsNumber * contentsNumber, manager.size());
 	}
 
 	@Override
 	public void onAggregationEnded(AggregationManager<BooleanAnnotation, Content> sender, Map<Content, BooleanAnnotation> aggregatedAnnotations) {
 		assertNotNull("Sender is null", sender);
 		boolean value = true;
-		for (int k=0; k < contents.length; k++){
+		for (int k=0; k < contentsNumber; k++){
 			assertEquals("Estimation Error", value, aggregatedAnnotations.get(contents[k]).getValue());
 			value = !value;
 		}
