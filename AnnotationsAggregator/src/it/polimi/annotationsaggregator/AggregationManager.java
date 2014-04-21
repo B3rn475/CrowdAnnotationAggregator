@@ -153,12 +153,12 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content> i
 		
 		final ArrayList<A> removed = new ArrayList<A>();
 		for (Entry<C,ArrayList<A>> entry : annotations.entrySet()){
-			if (entry.getValue().size() == 1){
+			if (entry.getValue().size() <= 2){
 				removed.addAll(entry.getValue());
 			}
 		}
 		for (Entry<Annotator,ArrayList<A>> entry : annotators.entrySet()){
-			if (entry.getValue().size() == 1){
+			if (entry.getValue().size() <= 2){
 				removed.addAll(entry.getValue());
 			}
 		}
