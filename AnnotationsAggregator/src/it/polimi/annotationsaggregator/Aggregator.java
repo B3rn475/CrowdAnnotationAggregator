@@ -45,6 +45,11 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 		this.content = content;
 	}
 
+	/**
+	 * The current weights that must be used in the computation.
+	 * 
+	 * @return the Map of the weights.
+	 */
 	protected Map<A, Double> getWeights(){
 		return weights;
 	}
@@ -57,7 +62,6 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * It must call postAggregate to inform the aggregator that it has ended.
 	 * 
 	 * @param skip annotator to skip
-	 * @param weights weights to use the process
 	 */
 	protected abstract void aggregate(Annotator skip);
 
@@ -65,9 +69,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * This method can be Overloaded by derived classes. 
 	 * It is called before the beginning of the aggregation.
 	 * It can be used to initialize assets needed during the aggregation phase.
-	 * It must call postInitializingAggregation(Map<A, Double> weights) at the end of the initialization
-	 * 
-	 * @param weights
+	 * It must call postInitializingAggregation() at the end of the initialization
 	 */
 	protected void initializingAggregation() {
 		postInitializingAggregation();
@@ -77,9 +79,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * This method can be Overloaded by derived classes. 
 	 * It is called at the end of the aggregation.
 	 * It can be used to tear down the assets used.
-	 * It must call postEndingAggregation(Map<A, Double> weights) at the end.
-	 * 
-	 * @param weights
+	 * It must call postEndingAggregation() at the end.
 	 */
 	protected void endingAggregation(){
 		postEndingAggregation();
@@ -119,7 +119,6 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	
 	/**
 	 * Method to call at the end of each aggregation request
-	 * @param annotator skipped annotator
 	 * @param aggregatedAnnotation Aggregated annotation output of the process
 	 */
 	protected final void postAggregate(A aggregatedAnnotation) {
