@@ -23,7 +23,7 @@ public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Con
 	@Override
 	protected final void aggregate(Annotator skip) {
 		if (skip.equals(Annotator.NONE) || !lookup.containsKey(skip)) {
-			postAggregate(skip, aggregatedAnnotation);
+			postAggregate(aggregatedAnnotation);
 		} else {
 			final A annotation = lookup.get(skip);
 			subtractAnnotation(aggregatedAnnotation, annotation, getWeights().get(annotation));
@@ -47,7 +47,7 @@ public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Con
 	}
 	
 	protected final void postSubtractAnnotation(A annotation){
-		postAggregate(annotation.annotator, annotation);
+		postAggregate(annotation);
 	}
 	
 	@Override

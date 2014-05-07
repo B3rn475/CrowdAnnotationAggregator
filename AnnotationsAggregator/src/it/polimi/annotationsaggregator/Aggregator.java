@@ -122,10 +122,10 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * @param annotator skipped annotator
 	 * @param aggregatedAnnotation Aggregated annotation output of the process
 	 */
-	protected final void postAggregate(Annotator annotator, A aggregatedAnnotation) {
+	protected final void postAggregate(A aggregatedAnnotation) {
 		final boolean ending;
 		
-		estimated.put(annotator, aggregatedAnnotation); // do this first to be sure to be the last
+		estimated.put(aggregatedAnnotation.annotator, aggregatedAnnotation); // do this first to be sure to be the last
 		
 		synchronized (this) {
 			countDown--;
