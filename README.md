@@ -10,12 +10,12 @@ Base Classes
 ---------------------
 
 __Content__  
-This class represents the object that is going to be annotated. It has by default only one field __id__ that is used to identify it. The __id__ must be grater than __0__.  
+This class represents the object that is going to be annotated. It has by default only one field __id__ that is used to identify it. The __id__ must be greater than __0__.  
 The __id__ is the only field that is used for identification so two Content with the same __id__ will be taken in account as they are the same.  
 If you need to add informations you can just implement a class that inherits from it and add the fields you need.
 
 __Annotator__  
-This class represents the user that annotates a content. It has an __id__ that is used to identify it. This __id__ must be grater than __0__ (0 means no Annotator and is accessible via Annotator.NONE).  
+This class represents the user that annotates a content. It has an __id__ that is used to identify it. This __id__ must be greater than __0__ (0 means no Annotator and is accessible via Annotator.NONE).  
 The __id__ identifies the Annotator so two Annotators with the same __id__ will be taken in account as they are the same.  
 If you need to add informations you can just implement a class that inherits from it and add the fields you need.
 
