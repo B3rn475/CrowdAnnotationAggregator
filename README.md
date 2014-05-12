@@ -64,7 +64,7 @@ You must implement the methods __sumAllAnnotations__ and __subtractAnnotation__.
 __sumAllAnnotations__ has to sum all the annotations and report the total aggregated annotation, it can be Asynchronous, you must invoke __postSubtractedAnnotation__ at the end of the process.  
 __subtractAnnotation__ has to subtract a given annotation from the Total one using the given weight, it can be Asynchronous, you must invoke __postSubtractAnnotation__ at the end of the process.  
 
-__CoherenceEstimator__
+__CoherenceEstimator__  
 This is the class responsible of computing the coherence among the aggregated annotations.  
 It is templated on both the __Annotation__ and  the __Content__.  
 You must define your own __CoherenceEstimator__ that implements an algorithm valid for you particular kind of __Annotation__.  
