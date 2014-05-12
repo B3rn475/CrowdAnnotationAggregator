@@ -41,7 +41,7 @@ __AggregationManager__
 This is the heart of the system, it is the class responsible of the Algorithm management.  
 It is templated on both __Annotation__ and __Content__ (the __Content__ templated of the annotation must be the same of the __Annotation__).  
 If you are not going to create a custom __Content__ you can use the __BaseAggreationManager__ that is templated only on the __Annotation__ that must be a class derived by __BaseAnnotation__.  
-It is a Map<Annotation, Double> so it allows to insert both the __Annotation__s and a start value for the weight associated to that __Annotation__ (set the weight to 1 to use the default initialization).  
+It is a Map<Annotation, Double> so it allows to insert both the annotations and a start value for the weight associated to that __Annotation__ (set the weight to 1 to use the default initialization).  
 It has been thinked has an asynchronous Object so once the start() method is called it may return immediately. The completion is signaled through the Listener callback.  
 The asynchronicity if the Object is dependent on the asynchronicity if both __Aggregator__ and __CoherenceEstimator__, if at least one of them is Asynchronous the Object is Asynchronous.
 
@@ -52,7 +52,7 @@ You must define your own __Aggregator__ that implements an algorithm valid for y
 During the process many Objects of this type will be instantiated. In particular one for each content, so you are sure that all the annotations passed are related to the same content.  
 You have to implement the method __aggregate__ that takes as parameter an annotator to skip in the process.  
 This method can be Asynchronous but has to call the method __postAggregate__ at the end of the process. The __Annotation__ passed to the __postAggregate__ must be related to the same __Annotator__ passed as skip parameter.  
-You can access the current __Annotation__s due to the fact that the Object is a __Collection__ of __Annotation__.  
+You can access the current annotations due to the fact that the Object is a __Collection__ of __Annotation__.  
 You can access the current weight using the method __getWeights__.
 If for performance reason you want to pre-compute some values at the beginning of the process you can do that Overriding the method __initializingAggregation__.  It can be Asynchronous, you must invoke __postInitializingAggregation__ at the end of the initialization.  
 If you have Overrided the method __initializingAggregation__ and you want to clean up temporary properties at the end you can Override the method __endingAggregation__.  It can be Asynchronous, you must invoke __postEndingAggregation__ at the end of the tear down.  
@@ -68,7 +68,7 @@ __CoherenceEstimator__
 This is the class responsible of computing the coherence among the aggregated annotations.  
 It is templated on both the __Annotation__ and  the __Content__.  
 You must define your own __CoherenceEstimator__ that implements an algorithm valid for you particular kind of __Annotation__.  
-During the process many Objects of this type will be instantiated. In particular one for each annotator, so you are sure that all the __Annotation__s passed are related to the same __Annotator__.  
+During the process many Objects of this type will be instantiated. In particular one for each annotator, so you are sure that all the annotations passed are related to the same __Annotator__.  
 You have to implement the method __estimate__ that takes as parameter a content to skip in the process.  
 This method can be Asynchronous but has to call the method __postEstimate__ at the end of the process. To this method you have to pass as parameters the content that you have skipped and the weight __estimate__ as a Double.  
 If for performance reason you want to pre-compute some values at the beginning of the process you can do that Overriding the method __initializingEstimation__.  It can be Asynchronous, you must invoke __postInitializingEstimation__ at the end of the initialization.  
