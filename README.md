@@ -4,6 +4,19 @@ _By Carlo Bernaschina (GitHub - B3rn475) from Politecnico di Milano (Como campus
 
 AnnotationsAggregator is a Java Library that allow to aggregate the annotations of a crowdsourcing system regardless of the specific type of annotations.
 
+This system aggregates annotations that come from different users on the same object/content.
+It requires every object to be annotated by at least 3 users.
+It requires every user to annotate at least 3 objects.
+It requires every user to annotate every object at most 1 time.
+Every annotation that does not follow this rules will be rejected.
+
+The data are organized as a bipartisan graph, in which nodes represent both users (on the right) and objects/contents (on the left) and in which edges represent annotations of a user on an object.
+The system assign a weight to every annotation and computes the final annotation as a weighted aggregation of the annotations.
+The weights are estimated using a iterative approach:
+ - _Step_ _1_ for every annotation it is estimated another one that takes in account all the other annotation from different users on the same object  
+ - _Step_ _2_ the weight of the annotation is estimated taking in account all the couple (annotation estimation) of the same user on all the other objects  
+The algorithm stops when the convergence is reached (or when a maximum number of steps is reached)
+
 It solves the problem relying on the implementation of two custom function that are dependent on the type of annotation and must be implemented for the specific case.
 
 Base Classes
