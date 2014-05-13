@@ -1,4 +1,4 @@
-AnnotationsAggregator
+CrowdAnnotationAggregator
 =====================
 _By Carlo Bernaschina (GitHub - B3rn475) from Politecnico di Milano (Como campus)_
 
