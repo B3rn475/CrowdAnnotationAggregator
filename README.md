@@ -83,4 +83,4 @@ This interface must be implemented by a class and is used to allow the __Aggrega
 
 Example
 ---------------------------
-For a basic example (that is not asynchronous) you can see the classes at __it.polimi.annotationsaggregator.bool__ and __it.polimi.annotationsaggregator.junit.bool__.
+For a basic example (that is not asynchronous) you can see the classes at __it.polimi.crowdannotationaggregator.bool__ and __it.polimi.crowdannotationaggregator.junit.bool__.
