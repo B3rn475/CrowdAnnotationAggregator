@@ -6,9 +6,9 @@ package it.polimi.crowdannotationaggregator;
 import it.polimi.crowdannotationaggregator.Aggregator.OnAggregationCompletedListener;
 import it.polimi.crowdannotationaggregator.CoherenceEstimator.OnEstimationCompletedListener;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -147,36 +147,45 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	 * Annotators that has only 1 annotation
 	 */
 	private void removeInvalidAnnotations() {
+		final HashSet<C> rContents = new HashSet<C>();
+		final HashSet<Annotator> rAnnotators = new HashSet<Annotator>();
+		
+		for (A annotation : weights.keySet()) {
+			rContents.add(annotation.content);
+			rAnnotators.add(annotation.annotator);
+		}
+		
+		final HashSet<A> removedAnnotations = new HashSet<A>();
 		while (true) {
-			final HashMap<C, ArrayList<A>> annotations = new HashMap<C, ArrayList<A>>();
-			final HashMap<Annotator, ArrayList<A>> annotators = new HashMap<Annotator, ArrayList<A>>();
+			final HashMap<C, HashSet<A>> annotations = new HashMap<C, HashSet<A>>();
+			final HashMap<Annotator, HashSet<A>> annotators = new HashMap<Annotator, HashSet<A>>();
 
 			for (A annotation : weights.keySet()) {
-				final ArrayList<A> alist;
+				final HashSet<A> alist;
 				if (annotations.containsKey(annotation.content)) {
 					alist = annotations.get(annotation.content);
 				} else {
-					alist = new ArrayList<A>();
+					alist = new HashSet<A>();
 					annotations.put(annotation.content, alist);
 				}
 				alist.add(annotation);
-				final ArrayList<A> blist;
+				final HashSet<A> blist;
 				if (annotators.containsKey(annotation.annotator)) {
 					blist = annotators.get(annotation.annotator);
 				} else {
-					blist = new ArrayList<A>();
+					blist = new HashSet<A>();
 					annotators.put(annotation.annotator, blist);
 				}
 				blist.add(annotation);
 			}
 
-			final ArrayList<A> removed = new ArrayList<A>();
-			for (Entry<C, ArrayList<A>> entry : annotations.entrySet()) {
+			final HashSet<A> removed = new HashSet<A>();
+			for (Entry<C, HashSet<A>> entry : annotations.entrySet()) {
 				if (entry.getValue().size() <= 2) {
 					removed.addAll(entry.getValue());
 				}
 			}
-			for (Entry<Annotator, ArrayList<A>> entry : annotators.entrySet()) {
+			for (Entry<Annotator, HashSet<A>> entry : annotators.entrySet()) {
 				if (entry.getValue().size() <= 2) {
 					removed.addAll(entry.getValue());
 				}
@@ -184,11 +193,20 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 
 			if (removed.isEmpty())
 				break;
+			
+			removedAnnotations.addAll(removed);
 
 			for (A annotation : removed) {
 				weights.remove(annotation);
 			}
 		}
+		
+		for (A annotation : weights.keySet()) {
+			rContents.remove(annotation.content);
+			rAnnotators.remove(annotation.annotator);
+		}
+		
+		listener.onInvalidAnnotationsRemoved(removedAnnotations, rContents, rAnnotators);
 	}
 
 	/**
@@ -395,6 +413,10 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 
 		public void onAggregationEnded(AggregationManager<A, C> sender,
 				Map<C, A> aggregatedAnnotations);
+		
+		public void onInvalidAnnotationsRemoved(HashSet<A> annotations, 
+				HashSet<C> contents, 
+				HashSet<Annotator> annotators);
 	}
 
 	@Override

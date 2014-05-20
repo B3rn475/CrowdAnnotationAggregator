@@ -2,6 +2,7 @@ package it.polimi.crowdannotationaggregator.bool;
 
 import static org.junit.Assert.*;
 
+import java.util.HashSet;
 import java.util.Map;
 
 import it.polimi.crowdannotationaggregator.AggregationManager;
@@ -81,6 +82,14 @@ public class testBooleanAggregationManager implements OnBaseProcessListener<Bool
 		assertNotNull("Sender is null", sender);
 		assertTrue("Step is negative", step >= 0);
 		assertTrue("Delta is negative", delta >= 0.0);
+	}
+
+	@Override
+	public void onInvalidAnnotationsRemoved(
+			HashSet<BooleanAnnotation> annotations, HashSet<Content> contents,
+			HashSet<Annotator> annotators) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
