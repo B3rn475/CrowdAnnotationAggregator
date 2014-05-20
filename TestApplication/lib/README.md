@@ -1,0 +1,1 @@
+in this folder it must be located the CrowdAnnotationAggregator.jar file
