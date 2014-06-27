@@ -1,6 +1,12 @@
 CrowdAnnotationAggregator
 =====================
-_By Carlo Bernaschina (GitHub - B3rn475) from Politecnico di Milano (Como campus)_
+
+Developed By __Carlo Bernaschina__ (GitHub - __B3rn475__)
+www.bernaschina.com
+
+Copyright (c) 2014 __Politecnico di Milano__  
+www.polimi.it
+Distributed under the __LGPL Licence__
 
 CrowdAnnotationAggregator is a Java Library that allow to aggregate the annotations of a crowdsourcing system regardless of the specific type of annotations.
 
