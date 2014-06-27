@@ -80,7 +80,7 @@ This method can be Asynchronous but has to call the method __postEstimate__ at t
 If for performance reason you want to pre-compute some values at the beginning of the process you can do that Overriding the method __initializingEstimation__.  It can be Asynchronous, you must invoke __postInitializingEstimation__ at the end of the initialization.  
 If you have Overrided the method __initializingEstimation__ and you want to clean up temporary properties at the end you can Override the method __endingEstimation__.  It can be Asynchronous, you must invoke __postEndingEstimation__ at the end of the tear down.  
 
-__LinearAggregator__  
+__LinearCoherenceEstimator__  
 If your aggregation algorithm is linear (A+B)+C = A+(B+C) you can use instead of the standard __CoherenceEstimator__ the __LinearCoherenceEstimator__ to obtain better performance.
 You must implement the method __comparePair__, it has to compare annotations in couples, it can be Asynchronous, you must invoke __postCompairPair__ at the end of the process.  
 
