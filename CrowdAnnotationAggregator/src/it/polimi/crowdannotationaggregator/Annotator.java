@@ -19,7 +19,7 @@ public class Annotator {
 	/**
 	 * The Id of the Annotator
 	 */
-	public final int id;
+	private final int id;
 	
 	private Annotator(int id, boolean checks)
 	{

@@ -57,7 +57,7 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 		{
 				totalSum[i] = aggregatedAnnotation.getPixel(i) - annotation.getPixel(i) * weight;
 		}
-		postSubtractAnnotation(new ImageAreaAnnotation(content, annotation.annotator, totalSum));
+		postSubtractAnnotation(new ImageAreaAnnotation(content, annotation.getAnnotator(), totalSum));
 	}
 
 }

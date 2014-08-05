@@ -53,7 +53,7 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 	}
 	
 	public double getPixel(int x, int y){
-		return getPixel(y+x*content.height);
+		return getPixel(y+x*getContent().height);
 	}
 	
 	public double getPixel(int index){
@@ -61,7 +61,7 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 	}
 	
 	public boolean getPixelValue(int x, int y){
-		return getPixelValue(y+x*content.height);
+		return getPixelValue(y+x*getContent().height);
 	}
 	
 	public boolean getPixelValue(int index){

@@ -33,6 +33,6 @@ public final class BooleanAggregator extends BaseLinearAggregator<BooleanAnnotat
 	@Override
 	protected final void subtractAnnotation(BooleanAnnotation aggregatedAnnotation,
 			BooleanAnnotation annotation, double weight) {
-		postSubtractAnnotation(new BooleanAnnotation(content, annotation.annotator, aggregatedAnnotation.value - annotation.value * weight));
+		postSubtractAnnotation(new BooleanAnnotation(content, annotation.getAnnotator(), aggregatedAnnotation.value - annotation.value * weight));
 	}
 }

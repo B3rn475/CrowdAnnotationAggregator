@@ -10,6 +10,7 @@
 package it.polimi.crowdannotationaggregator;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author B3rn475
@@ -18,7 +19,7 @@ import java.util.HashMap;
 public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Content> extends Aggregator<A, C> {
 
 	private A aggregatedAnnotation = null;
-	private final HashMap<Annotator, A> lookup = new HashMap<Annotator, A>();
+	private final Map<Annotator, A> lookup = new HashMap<Annotator, A>();
 	
 	protected LinearAggregator(
 			OnAggregationCompletedListener<A, C> listener,
@@ -39,7 +40,7 @@ public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Con
 	@Override
 	protected final void initializingAggregation() {
 		for (A a : this){
-			lookup.put(a.annotator, a);
+			lookup.put(a.getAnnotator(), a);
 		}
 		sumAllAnnotations();
 	}

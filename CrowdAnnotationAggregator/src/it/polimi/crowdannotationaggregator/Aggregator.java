@@ -102,7 +102,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 			aggregate(Annotator.NONE);
 		} else {
 			for (A annotation : annotations) {
-				aggregate(annotation.annotator);
+				aggregate(annotation.getAnnotator());
 			}
 		}
 	}
@@ -117,7 +117,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 		} else {
 			HashMap<A, A> aggregatedAnnotations = new HashMap<A,A>();
 			for (A annotation : annotations) {
-				aggregatedAnnotations.put(annotation, estimated.get(annotation.annotator));
+				aggregatedAnnotations.put(annotation, estimated.get(annotation.getAnnotator()));
 			}
 			listener.onAggregationCompleted(this, aggregatedAnnotations);
 		}
@@ -130,7 +130,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	protected final void postAggregate(A aggregatedAnnotation) {
 		final boolean ending;
 		
-		estimated.put(aggregatedAnnotation.annotator, aggregatedAnnotation); // do this first to be sure to be the last
+		estimated.put(aggregatedAnnotation.getAnnotator(), aggregatedAnnotation); // do this first to be sure to be the last
 		
 		synchronized (this) {
 			countDown--;
@@ -183,7 +183,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 */
 	@Override
 	public boolean add(A e) {
-		if (!e.content.equals(content))
+		if (!e.getContent().equals(content))
 			throw new IllegalArgumentException("The annotation must be of the same content of the Aggregator");
 		return annotations.add(e);
 	}
@@ -194,7 +194,7 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	@Override
 	public boolean addAll(Collection<? extends A> c) {
 		for (A a : c){
-			if (!a.content.equals(content))
+			if (!a.getContent().equals(content))
 				throw new IllegalArgumentException("The annotation must be of the same content of the Aggregator");
 		}
 		return annotations.addAll(c);

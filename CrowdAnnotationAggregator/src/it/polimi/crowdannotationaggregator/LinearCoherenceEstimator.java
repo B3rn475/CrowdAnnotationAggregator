@@ -9,6 +9,7 @@
  */
 package it.polimi.crowdannotationaggregator;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -19,7 +20,7 @@ public abstract class LinearCoherenceEstimator<A extends Annotation<C, ?>, C ext
 
 	private double total = 0;
 	private int countDown = 0;
-	private final ConcurrentHashMap<C, Double> lookup = new ConcurrentHashMap<C, Double>();
+	private final Map<C, Double> lookup = new ConcurrentHashMap<C, Double>();
 	
 	public LinearCoherenceEstimator(
 			OnEstimationCompletedListener<A,C> listener,
@@ -53,7 +54,7 @@ public abstract class LinearCoherenceEstimator<A extends Annotation<C, ?>, C ext
 	protected final void postCamparePair(A annotation, double weight){
 		final boolean ending;
 		
-		lookup.put(annotation.content, weight); // do this first to be sure to be the last
+		lookup.put(annotation.getContent(), weight); // do this first to be sure to be the last
 		
 		synchronized (this) {
 			countDown--;

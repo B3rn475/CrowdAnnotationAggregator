@@ -27,9 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class CoherenceEstimator<A extends Annotation<C, ?>, C extends Content> implements Map<A,A> {
 	public final Annotator annotator;
 	protected final OnEstimationCompletedListener<A,C> listener;
-	private final ConcurrentHashMap<A, A> pairs = new ConcurrentHashMap<A, A>();
-	private final ConcurrentHashMap<A, Double> estimatedWeights = new ConcurrentHashMap<A, Double>();
-	private final ConcurrentHashMap<C, A> annotations = new ConcurrentHashMap<C, A>();
+	private final Map<A, A> pairs = new ConcurrentHashMap<A, A>();
+	private final Map<A, Double> estimatedWeights = new ConcurrentHashMap<A, Double>();
+	private final Map<C, A> annotations = new ConcurrentHashMap<C, A>();
 	
 	/**
 	 * Count Down for the remaining Jobs to complete
@@ -97,7 +97,7 @@ public abstract class CoherenceEstimator<A extends Annotation<C, ?>, C extends C
 	 */
 	protected final void postInitializingEstimation() {
 		for (A annotation : this.keySet()){
-			estimate(annotation.content);
+			estimate(annotation.getContent());
 		}
 	}
 
@@ -175,17 +175,17 @@ public abstract class CoherenceEstimator<A extends Annotation<C, ?>, C extends C
 			throw new IllegalArgumentException("annotation cannot be null");
 		if (estimation == null)
 			throw new IllegalArgumentException("estimation cannot be null");
-		if (annotation.content != estimation.content)
+		if (!annotation.getContent().equals(estimation.getContent()))
 			throw new IllegalArgumentException("annotation and estimation must be related to the same content");
-		if (annotation.annotator != estimation.annotator)
+		if (!annotation.getAnnotator().equals(estimation.getAnnotator()))
 			throw new IllegalArgumentException("annotation and estimation must be related to the same annotator");
-		annotations.put(annotation.content, annotation);
+		annotations.put(annotation.getContent(), annotation);
 		return pairs.put(annotation, estimation);
 	}
 
 	@Override
 	public void putAll(Map<? extends A, ? extends A> m) {
-		final HashMap<C, A> a = new HashMap<C, A>();
+		final Map<C, A> a = new HashMap<C, A>();
 		for (Entry<? extends A, ? extends A> entry : m.entrySet()){
 			final A annotation = entry.getKey();
 			final A estimation = entry.getValue();
@@ -193,11 +193,11 @@ public abstract class CoherenceEstimator<A extends Annotation<C, ?>, C extends C
 				throw new IllegalArgumentException("annotation cannot be null");
 			if (estimation == null)
 				throw new IllegalArgumentException("estimation cannot be null");
-			if (annotation.content != estimation.content)
+			if (!annotation.getContent().equals(estimation.getContent()))
 				throw new IllegalArgumentException("annotation and estimation must be related to the same content");
-			if (annotation.annotator != estimation.annotator)
+			if (!annotation.getAnnotator().equals(estimation.getAnnotator()))
 				throw new IllegalArgumentException("annotation and estimation must be related to the same annotator");
-			a.put(annotation.content, annotation);
+			a.put(annotation.getContent(), annotation);
 		}
 		annotations.putAll(a);
 		pairs.putAll(m);
@@ -207,7 +207,7 @@ public abstract class CoherenceEstimator<A extends Annotation<C, ?>, C extends C
 	public A remove(Object key) {
 		if (key instanceof Annotation<?,?>){
 			final Annotation<?,?> annotation = (Annotation<?,?>)key;
-			annotations.remove(annotation.content);
+			annotations.remove(annotation.getContent());
 		}
 		return pairs.remove(key);
 	}

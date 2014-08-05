@@ -39,7 +39,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	private final AggregatorFactory<A, C> aggregatorFactory;
 	private final CoherenceEstimatorFactory<A, C> estimatorFactory;
 
-	private final ConcurrentHashMap<A, Double> weights = new ConcurrentHashMap<A, Double>();
+	private final Map<A, Double> weights = new ConcurrentHashMap<A, Double>();
 	private boolean isWorking = false;
 	private final double threshold;
 	private final int maxIterations;
@@ -63,7 +63,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	 * no need to synchronize it is read-only when multi-thread are active
 	 */
 	private final Map<Annotator, CoherenceEstimator<A, C>> coherenceEstimators = new HashMap<Annotator, CoherenceEstimator<A, C>>();
-	private final ConcurrentHashMap<C, A> finalAggregation = new ConcurrentHashMap<C, A>();
+	private final Map<C, A> finalAggregation = new ConcurrentHashMap<C, A>();
 
 	/**
 	 * Builder of the AggregatorManager
@@ -128,17 +128,19 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 
 		for (A annotation : weights.keySet()) {
 			final Aggregator<A, C> aggregator;
-			if (aggregators.containsKey(annotation.content)) {
-				aggregator = aggregators.get(annotation.content);
+			final C content = annotation.getContent();
+			final Annotator annotator = annotation.getAnnotator();
+			if (aggregators.containsKey(content)) {
+				aggregator = aggregators.get(content);
 			} else {
 				aggregator = aggregatorFactory.buildAggregator(this,
-						annotation.content);
-				aggregators.put(annotation.content, aggregator);
+						content);
+				aggregators.put(content, aggregator);
 			}
 			aggregator.add(annotation);
-			if (!coherenceEstimators.containsKey(annotation.annotator)) {
-				coherenceEstimators.put(annotation.annotator, estimatorFactory
-						.buildEstimator(this, annotation.annotator));
+			if (!coherenceEstimators.containsKey(annotator)) {
+				coherenceEstimators.put(annotator, estimatorFactory
+						.buildEstimator(this, annotator));
 			}
 		}
 
@@ -153,45 +155,47 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	 * Annotators that has only 1 annotation
 	 */
 	private void removeInvalidAnnotations() {
-		final HashSet<C> rContents = new HashSet<C>();
-		final HashSet<Annotator> rAnnotators = new HashSet<Annotator>();
+		final Set<C> rContents = new HashSet<C>();
+		final Set<Annotator> rAnnotators = new HashSet<Annotator>();
 		
 		for (A annotation : weights.keySet()) {
-			rContents.add(annotation.content);
-			rAnnotators.add(annotation.annotator);
+			rContents.add(annotation.getContent());
+			rAnnotators.add(annotation.getAnnotator());
 		}
 		
-		final HashSet<A> removedAnnotations = new HashSet<A>();
+		final Set<A> removedAnnotations = new HashSet<A>();
 		while (true) {
-			final HashMap<C, HashSet<A>> annotations = new HashMap<C, HashSet<A>>();
-			final HashMap<Annotator, HashSet<A>> annotators = new HashMap<Annotator, HashSet<A>>();
+			final Map<C, Set<A>> annotations = new HashMap<C, Set<A>>();
+			final Map<Annotator, Set<A>> annotators = new HashMap<Annotator, Set<A>>();
 
 			for (A annotation : weights.keySet()) {
-				final HashSet<A> alist;
-				if (annotations.containsKey(annotation.content)) {
-					alist = annotations.get(annotation.content);
+				final Set<A> alist;
+				final C content = annotation.getContent();
+				final Annotator annotator = annotation.getAnnotator();
+				if (annotations.containsKey(content)) {
+					alist = annotations.get(content);
 				} else {
 					alist = new HashSet<A>();
-					annotations.put(annotation.content, alist);
+					annotations.put(content, alist);
 				}
 				alist.add(annotation);
-				final HashSet<A> blist;
-				if (annotators.containsKey(annotation.annotator)) {
-					blist = annotators.get(annotation.annotator);
+				final Set<A> blist;
+				if (annotators.containsKey(annotator)) {
+					blist = annotators.get(annotator);
 				} else {
 					blist = new HashSet<A>();
-					annotators.put(annotation.annotator, blist);
+					annotators.put(annotator, blist);
 				}
 				blist.add(annotation);
 			}
 
-			final HashSet<A> removed = new HashSet<A>();
-			for (Entry<C, HashSet<A>> entry : annotations.entrySet()) {
+			final Set<A> removed = new HashSet<A>();
+			for (Entry<C, Set<A>> entry : annotations.entrySet()) {
 				if (entry.getValue().size() <= 2) {
 					removed.addAll(entry.getValue());
 				}
 			}
-			for (Entry<Annotator, HashSet<A>> entry : annotators.entrySet()) {
+			for (Entry<Annotator, Set<A>> entry : annotators.entrySet()) {
 				if (entry.getValue().size() <= 2) {
 					removed.addAll(entry.getValue());
 				}
@@ -208,8 +212,8 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		}
 		
 		for (A annotation : weights.keySet()) {
-			rContents.remove(annotation.content);
-			rAnnotators.remove(annotation.annotator);
+			rContents.remove(annotation.getContent());
+			rAnnotators.remove(annotation.getAnnotator());
 		}
 		
 		listener.onInvalidAnnotationsRemoved(removedAnnotations, rContents, rAnnotators);
@@ -329,7 +333,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		for (Entry<A, A> entry : aggregatedAnnotations.entrySet()) {
 			final A annotation = entry.getKey();
 			final A estimation = entry.getValue();
-			coherenceEstimators.get(annotation.annotator).put(annotation,
+			coherenceEstimators.get(annotation.getAnnotator()).put(annotation,
 					estimation);
 		}
 
@@ -374,17 +378,9 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 			A aggregatedAnnotation) {
 		final boolean ending;
 
+		// do this first to be sure to be the last
 		finalAggregation
-				.put(aggregatedAnnotation.content, aggregatedAnnotation); // do
-																			// this
-																			// first
-																			// to
-																			// be
-																			// sure
-																			// to
-																			// be
-																			// the
-																			// last
+				.put(aggregatedAnnotation.getContent(), aggregatedAnnotation); 
 
 		synchronized (this) {
 			countDown--;
@@ -420,9 +416,9 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		public void onAggregationEnded(AggregationManager<A, C> sender,
 				Map<C, A> aggregatedAnnotations);
 		
-		public void onInvalidAnnotationsRemoved(HashSet<A> annotations, 
-				HashSet<C> contents, 
-				HashSet<Annotator> annotators);
+		public void onInvalidAnnotationsRemoved(Set<A> annotations, 
+				Set<C> contents, 
+				Set<Annotator> annotators);
 	}
 
 	@Override

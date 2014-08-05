@@ -20,13 +20,30 @@ package it.polimi.crowdannotationaggregator;
 public abstract class Annotation<C extends Content, A extends Annotator> {
 	/**
 	 * Annotator of the annotation
-	 * If Annotator.NONE the annotation is not releated to a particular user
+	 * If Annotator.NONE the annotation is not related to a particular user
 	 */
-	public final A annotator;
+	private final A annotator;
 	/**
 	 * Content annotated
 	 */
-	public final C content;
+	private final C content;
+	
+	/**
+	 * Get the Annotator of the annotation
+	 * If Annotator.NONE the annotation is not related to a particular user
+	 * @return
+	 */
+	public A getAnnotator() {
+		return annotator;
+	}
+	
+	/**
+	 * Get the Content annotated
+	 * @return
+	 */
+	public C getContent() {
+		return content;
+	}
 	
 	/**
 	 * Initialize a new Annotation
