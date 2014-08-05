@@ -2,8 +2,8 @@ package testapplication.junit;
 
 import static org.junit.Assert.*;
 
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import it.polimi.crowdannotationaggregator.AggregationManager;
 import it.polimi.crowdannotationaggregator.Annotator;
@@ -89,8 +89,8 @@ public class testBooleanAggregationManager implements OnBaseProcessListener<Bool
 
 	@Override
 	public void onInvalidAnnotationsRemoved(
-			HashSet<BooleanAnnotation> annotations, HashSet<Content> contents,
-			HashSet<Annotator> annotators) {
+			Set<BooleanAnnotation> annotations, Set<Content> contents,
+			Set<Annotator> annotators) {
 		// TODO Auto-generated method stub
 		
 	}

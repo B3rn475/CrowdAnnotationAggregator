@@ -25,7 +25,7 @@ public final class BooleanAggregator extends BaseLinearAggregator<BooleanAnnotat
 	protected final void sumAllAnnotations() {
 		double total = 0;
 		for (BooleanAnnotation annotation : this){
-			total += annotation.value * getWeights().get(annotation);
+			total += annotation.getDoubleValue() * getWeights().get(annotation);
 		}
 		postSumAllAnnotations(new BooleanAnnotation(content, Annotator.NONE, total));
 	}
@@ -33,6 +33,6 @@ public final class BooleanAggregator extends BaseLinearAggregator<BooleanAnnotat
 	@Override
 	protected final void subtractAnnotation(BooleanAnnotation aggregatedAnnotation,
 			BooleanAnnotation annotation, double weight) {
-		postSubtractAnnotation(new BooleanAnnotation(content, annotation.annotator, aggregatedAnnotation.value - annotation.value * weight));
+		postSubtractAnnotation(new BooleanAnnotation(content, annotation.getAnnotator(), aggregatedAnnotation.getDoubleValue() - annotation.getDoubleValue() * weight));
 	}
 }

@@ -115,10 +115,10 @@ public class testBooleanFactory implements OnBaseLinearAggregationCompletedListe
 		for (Entry<BooleanAnnotation, BooleanAnnotation> entity : aggregatedAnnotations.entrySet()){
 			final BooleanAnnotation annotation = entity.getKey();
 			final BooleanAnnotation estimation = entity.getValue();
-			assertEquals("Annotation and Estimation are different", annotation.annotator, estimation.annotator);
-			viewedAnnotators.add(annotation.annotator);
+			assertEquals("Annotation and Estimation are different", annotation.getAnnotator(), estimation.getAnnotator());
+			viewedAnnotators.add(annotation.getAnnotator());
 			for (int i=0; i < annotators.length; i++){
-				if (annotators[i].equals(annotation.annotator)){
+				if (annotators[i].equals(annotation.getAnnotator())){
 					assertEquals("Estimation is incorrect", estimation.getValue(), expectedAggregatedBooleans[i]);
 					break;
 				}
@@ -164,9 +164,9 @@ public class testBooleanFactory implements OnBaseLinearAggregationCompletedListe
 		CoherenceEstimator<BooleanAnnotation, Content> estimator = factory.buildEstimator(this, Annotator.NONE);
 		assertNotNull("No Estimator built", estimator);
 		
-		estimator.put(annotationsE[0], new BooleanAnnotation(contents[0], annotationsE[0].annotator, true));
-		estimator.put(annotationsE[1], new BooleanAnnotation(contents[1], annotationsE[1].annotator, true));
-		estimator.put(annotationsE[2], new BooleanAnnotation(contents[2], annotationsE[2].annotator, true));
+		estimator.put(annotationsE[0], new BooleanAnnotation(contents[0], annotationsE[0].getAnnotator(), true));
+		estimator.put(annotationsE[1], new BooleanAnnotation(contents[1], annotationsE[1].getAnnotator(), true));
+		estimator.put(annotationsE[2], new BooleanAnnotation(contents[2], annotationsE[2].getAnnotator(), true));
 		
 		estimator.estimate();
 	}

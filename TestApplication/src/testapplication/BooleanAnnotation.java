@@ -19,7 +19,7 @@ import it.polimi.crowdannotationaggregator.Content;
  */
 public final class BooleanAnnotation extends BaseAnnotation {
 
-	public final double value;
+	private final double value;
 	
 	public BooleanAnnotation(Content content, Annotator annotator){
 		super(content, annotator);
@@ -42,6 +42,10 @@ public final class BooleanAnnotation extends BaseAnnotation {
 	
 	public boolean getValue(){
 		return value >= 0.0 ;
+	}
+	
+	public double getDoubleValue(){
+		return value;
 	}
 
 }
