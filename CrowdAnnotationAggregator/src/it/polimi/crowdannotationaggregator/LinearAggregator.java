@@ -11,7 +11,6 @@ package it.polimi.crowdannotationaggregator;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * @author B3rn475
@@ -31,9 +30,10 @@ public abstract class LinearAggregator<A extends Annotation<C, ?>, C extends Con
 
 	public double getTotalWeight() {
 		if (totalWeight == null) {
+			final Map<A, Double> weights = getWeights();
 			double value = 0;
-			for (Entry<A, Double> entry : getWeights().entrySet()) {
-				value += entry.getValue();
+			for (A annotation : this) {
+				value += weights.get(annotation);
 			}
 			totalWeight = value;
 		}
