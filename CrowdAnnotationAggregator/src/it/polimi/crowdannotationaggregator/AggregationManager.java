@@ -308,7 +308,10 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 			denominator += Math.abs(lastWeight);
 		}
 
-		return nominator / denominator;
+		if (denominator == 0)
+			return 0;
+		else
+			return nominator / denominator;
 	}
 
 	/**
