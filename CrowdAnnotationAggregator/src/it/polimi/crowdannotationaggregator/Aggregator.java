@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <A> AnnotationType
  */
 public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> implements Collection<A> {
-	public final C content;
+	private final C content;
 
 	protected final OnAggregationCompletedListener<A, C> listener;
 
@@ -36,6 +36,14 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	private long countDown = 0;
 	private final ConcurrentHashMap<Annotator, A> estimated = new ConcurrentHashMap<Annotator, A>();
 
+	/**
+	 * The Content the Aggregator is about
+	 * @return
+	 */
+	public C getContent(){
+		return content;
+	}
+	
 	/**
 	 * Build a new aggregator
 	 * @param listener an objects that listen on events of the aggregator

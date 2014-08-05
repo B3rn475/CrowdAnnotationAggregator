@@ -32,7 +32,7 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 
 	@Override
 	protected void sumAllAnnotations() {
-		final int length = content.width*content.height;
+		final int length = getContent().width*getContent().height;
 		final double[] totalSum = new double[length];
 		
 		for (ImageAreaAnnotation a : this){
@@ -42,7 +42,7 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 				totalSum[i] += a.getPixel(i) * weight;
 			}
 		}
-		postSumAllAnnotations(new ImageAreaAnnotation(content, Annotator.NONE, totalSum));
+		postSumAllAnnotations(new ImageAreaAnnotation(getContent(), Annotator.NONE, totalSum));
 	}
 
 	@Override
@@ -50,14 +50,14 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 			ImageAreaAnnotation aggregatedAnnotation,
 			ImageAreaAnnotation annotation,
 			double weight) {
-		final int length = content.width*content.height;
+		final int length = getContent().width*getContent().height;
 		final double[] totalSum = new double[length];
 		
 		for (int i=0; i<length; i++)
 		{
 				totalSum[i] = aggregatedAnnotation.getPixel(i) - annotation.getPixel(i) * weight;
 		}
-		postSubtractAnnotation(new ImageAreaAnnotation(content, annotation.getAnnotator(), totalSum));
+		postSubtractAnnotation(new ImageAreaAnnotation(getContent(), annotation.getAnnotator(), totalSum));
 	}
 
 }
