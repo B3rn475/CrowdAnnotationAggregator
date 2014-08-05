@@ -51,10 +51,10 @@ public abstract class LinearCoherenceEstimator<A extends Annotation<C, ?>, C ext
 
 	protected abstract void comparePair(A annotation, A estimation);
 
-	protected final void postCamparePair(A annotation, double weight){
+	protected final void postCamparePair(C content, double weight){
 		final boolean ending;
 		
-		lookup.put(annotation.getContent(), weight); // do this first to be sure to be the last
+		lookup.put(content, weight); // do this first to be sure to be the last
 		
 		synchronized (this) {
 			countDown--;

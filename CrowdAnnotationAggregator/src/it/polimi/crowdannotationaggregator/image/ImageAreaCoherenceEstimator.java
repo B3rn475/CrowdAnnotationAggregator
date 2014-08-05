@@ -39,7 +39,7 @@ public final class ImageAreaCoherenceEstimator extends LinearCoherenceEstimator<
 		}
 		final double dIntersectionArea = intersectionArea;
 		final double dUnionArea = unionArea;
-		postCamparePair(annotation, dIntersectionArea / dUnionArea);
+		postCamparePair(annotation.getContent(), dIntersectionArea / dUnionArea);
 	}
 
 }
