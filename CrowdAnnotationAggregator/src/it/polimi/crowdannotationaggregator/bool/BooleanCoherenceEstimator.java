@@ -27,7 +27,7 @@ public final class BooleanCoherenceEstimator extends LinearCoherenceEstimator<Bo
 
 	@Override
 	protected final void comparePair(BooleanAnnotation annotation, BooleanAnnotation estimation) {
-		postCamparePair(annotation.getContent(), annotation.value * estimation.value);
+		postComparePair(annotation.getContent(), annotation.value * estimation.value);
 	}
 
 }

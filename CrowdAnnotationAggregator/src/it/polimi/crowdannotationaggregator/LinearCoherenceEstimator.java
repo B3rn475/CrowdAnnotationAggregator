@@ -49,9 +49,14 @@ public abstract class LinearCoherenceEstimator<A extends Annotation<C, ?>, C ext
 		postEndingEstimation();
 	}
 
+	/**
+	 * This must call postComparePair
+	 * @param annotation
+	 * @param estimation
+	 */
 	protected abstract void comparePair(A annotation, A estimation);
 
-	protected final void postCamparePair(C content, double weight){
+	protected final void postComparePair(C content, double weight){
 		final boolean ending;
 		
 		lookup.put(content, weight); // do this first to be sure to be the last
