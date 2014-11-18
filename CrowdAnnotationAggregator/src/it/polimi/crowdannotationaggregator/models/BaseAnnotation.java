@@ -7,7 +7,7 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator;
+package it.polimi.crowdannotationaggregator.models;
 
 /**
  * This is just a wrapper of the base class Annotation that forces both 

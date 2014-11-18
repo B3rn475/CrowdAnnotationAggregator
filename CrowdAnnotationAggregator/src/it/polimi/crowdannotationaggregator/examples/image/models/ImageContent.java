@@ -7,9 +7,9 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator.image;
+package it.polimi.crowdannotationaggregator.examples.image.models;
 
-import it.polimi.crowdannotationaggregator.Content;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 public class ImageContent extends Content {
 

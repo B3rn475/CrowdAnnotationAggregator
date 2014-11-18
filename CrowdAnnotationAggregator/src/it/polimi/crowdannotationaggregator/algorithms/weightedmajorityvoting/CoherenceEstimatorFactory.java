@@ -7,9 +7,11 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator;
+package it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting;
 
-import it.polimi.crowdannotationaggregator.CoherenceEstimator.OnEstimationCompletedListener;
+import it.polimi.crowdannotationaggregator.models.Annotation;
+import it.polimi.crowdannotationaggregator.models.Annotator;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 /**
  * This class allow the AggregationManager to initialize a new CoherenceEstimation
@@ -18,5 +20,5 @@ import it.polimi.crowdannotationaggregator.CoherenceEstimator.OnEstimationComple
  *
  */
 public interface CoherenceEstimatorFactory<A extends Annotation<C, ?>, C extends Content> {
-	public CoherenceEstimator<A,C> buildEstimator(OnEstimationCompletedListener<A,C> listener, Annotator annotator);
+	public CoherenceEstimator<A,C> buildEstimator(CoherenceEstimator.OnEstimationCompletedListener<A,C> listener, Annotator annotator);
 }

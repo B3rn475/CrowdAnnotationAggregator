@@ -7,7 +7,10 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator;
+package it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting;
+
+import it.polimi.crowdannotationaggregator.models.BaseAnnotation;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 /**
  * This is a wrapper of the class Aggregator that force 

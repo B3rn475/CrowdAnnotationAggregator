@@ -1,22 +1,21 @@
 package it.polimi.crowdannotationaggregator.junit.bool;
 
 import static org.junit.Assert.*;
+import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.AggregationManager;
+import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.BaseAggregationManager;
+import it.polimi.crowdannotationaggregator.examples.bool.algorithms.weightedmajorityvoting.BooleanAggregationManager;
+import it.polimi.crowdannotationaggregator.examples.bool.models.BooleanAnnotation;
+import it.polimi.crowdannotationaggregator.models.Annotator;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 import java.util.Map;
 import java.util.Set;
-
-import it.polimi.crowdannotationaggregator.AggregationManager;
-import it.polimi.crowdannotationaggregator.Annotator;
-import it.polimi.crowdannotationaggregator.BaseAggregationManager.OnBaseProcessListener;
-import it.polimi.crowdannotationaggregator.Content;
-import it.polimi.crowdannotationaggregator.bool.BooleanAggregationManager;
-import it.polimi.crowdannotationaggregator.bool.BooleanAnnotation;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class testBooleanAggregationManager implements OnBaseProcessListener<BooleanAnnotation> {
+public class testBooleanAggregationManager implements BaseAggregationManager.OnBaseProcessListener<BooleanAnnotation> {
 
 	BooleanAggregationManager manager;
 	Annotator[] annotators;

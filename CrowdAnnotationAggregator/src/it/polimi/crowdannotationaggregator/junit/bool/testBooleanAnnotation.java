@@ -4,9 +4,9 @@
 package it.polimi.crowdannotationaggregator.junit.bool;
 
 import static org.junit.Assert.*;
-import it.polimi.crowdannotationaggregator.Annotator;
-import it.polimi.crowdannotationaggregator.Content;
-import it.polimi.crowdannotationaggregator.bool.BooleanAnnotation;
+import it.polimi.crowdannotationaggregator.examples.bool.models.BooleanAnnotation;
+import it.polimi.crowdannotationaggregator.models.Annotator;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 import org.junit.Test;
 

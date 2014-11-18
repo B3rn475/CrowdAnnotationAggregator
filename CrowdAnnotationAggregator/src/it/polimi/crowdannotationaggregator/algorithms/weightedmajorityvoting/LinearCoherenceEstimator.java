@@ -7,7 +7,11 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator;
+package it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting;
+
+import it.polimi.crowdannotationaggregator.models.Annotation;
+import it.polimi.crowdannotationaggregator.models.Annotator;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

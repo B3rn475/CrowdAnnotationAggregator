@@ -7,11 +7,12 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator.bool;
+package it.polimi.crowdannotationaggregator.examples.bool.algorithms.weightedmajorityvoting;
 
-import it.polimi.crowdannotationaggregator.Annotator;
-import it.polimi.crowdannotationaggregator.BaseLinearAggregator;
-import it.polimi.crowdannotationaggregator.Content;
+import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.BaseLinearAggregator;
+import it.polimi.crowdannotationaggregator.examples.bool.models.BooleanAnnotation;
+import it.polimi.crowdannotationaggregator.models.Annotator;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 public final class BooleanAggregator extends BaseLinearAggregator<BooleanAnnotation> {
 	

@@ -7,9 +7,10 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator.bool;
+package it.polimi.crowdannotationaggregator.examples.bool.algorithms.weightedmajorityvoting;
 
-import it.polimi.crowdannotationaggregator.BaseAggregationManager;
+import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.BaseAggregationManager;
+import it.polimi.crowdannotationaggregator.examples.bool.models.BooleanAnnotation;
 
 /**
  * @author b3rn475

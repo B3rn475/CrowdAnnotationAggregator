@@ -7,10 +7,11 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator;
+package it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting;
 
-import it.polimi.crowdannotationaggregator.Aggregator.OnAggregationCompletedListener;
-import it.polimi.crowdannotationaggregator.CoherenceEstimator.OnEstimationCompletedListener;
+import it.polimi.crowdannotationaggregator.models.Annotation;
+import it.polimi.crowdannotationaggregator.models.Annotator;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,8 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *            Annotation type
  */
 public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
-		implements Map<A, Double>, OnEstimationCompletedListener<A, C>,
-		OnAggregationCompletedListener<A, C> {
+		implements Map<A, Double>, CoherenceEstimator.OnEstimationCompletedListener<A, C>,
+		Aggregator.OnAggregationCompletedListener<A, C> {
 	private final OnProcessListener<A, C> listener;
 
 	private final AggregatorFactory<A, C> aggregatorFactory;

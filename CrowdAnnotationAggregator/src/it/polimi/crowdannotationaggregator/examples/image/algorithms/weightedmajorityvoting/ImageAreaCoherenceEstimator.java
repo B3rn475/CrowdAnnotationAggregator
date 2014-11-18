@@ -7,10 +7,12 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator.image;
+package it.polimi.crowdannotationaggregator.examples.image.algorithms.weightedmajorityvoting;
 
-import it.polimi.crowdannotationaggregator.Annotator;
-import it.polimi.crowdannotationaggregator.LinearCoherenceEstimator;
+import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.LinearCoherenceEstimator;
+import it.polimi.crowdannotationaggregator.examples.image.models.ImageAreaAnnotation;
+import it.polimi.crowdannotationaggregator.examples.image.models.ImageContent;
+import it.polimi.crowdannotationaggregator.models.Annotator;
 
 /**
  * @author B3rn475

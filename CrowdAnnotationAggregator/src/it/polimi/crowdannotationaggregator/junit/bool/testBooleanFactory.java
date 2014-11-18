@@ -1,26 +1,24 @@
 package it.polimi.crowdannotationaggregator.junit.bool;
 
 import static org.junit.Assert.*;
+import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.Aggregator;
+import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.BaseLinearAggregator;
+import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.CoherenceEstimator;
+import it.polimi.crowdannotationaggregator.examples.bool.algorithms.weightedmajorityvoting.BooleanFactory;
+import it.polimi.crowdannotationaggregator.examples.bool.models.BooleanAnnotation;
+import it.polimi.crowdannotationaggregator.models.Annotator;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import it.polimi.crowdannotationaggregator.Aggregator;
-import it.polimi.crowdannotationaggregator.Annotator;
-import it.polimi.crowdannotationaggregator.BaseLinearAggregator.OnBaseLinearAggregationCompletedListener;
-import it.polimi.crowdannotationaggregator.CoherenceEstimator;
-import it.polimi.crowdannotationaggregator.CoherenceEstimator.OnEstimationCompletedListener;
-import it.polimi.crowdannotationaggregator.Content;
-import it.polimi.crowdannotationaggregator.bool.BooleanAnnotation;
-import it.polimi.crowdannotationaggregator.bool.BooleanFactory;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class testBooleanFactory implements OnBaseLinearAggregationCompletedListener<BooleanAnnotation>, OnEstimationCompletedListener<BooleanAnnotation, Content>{
+public class testBooleanFactory implements BaseLinearAggregator.OnBaseLinearAggregationCompletedListener<BooleanAnnotation>, CoherenceEstimator.OnEstimationCompletedListener<BooleanAnnotation, Content>{
 
 	private BooleanFactory factory;
 	Annotator[] annotators;

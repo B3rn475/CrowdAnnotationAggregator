@@ -7,7 +7,7 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator;
+package it.polimi.crowdannotationaggregator.models;
 
 /**
  * This class describe a generic Content that is going to be annotated.

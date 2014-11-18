@@ -7,11 +7,11 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator.bool;
+package it.polimi.crowdannotationaggregator.examples.bool.models;
 
-import it.polimi.crowdannotationaggregator.Annotator;
-import it.polimi.crowdannotationaggregator.BaseAnnotation;
-import it.polimi.crowdannotationaggregator.Content;
+import it.polimi.crowdannotationaggregator.models.Annotator;
+import it.polimi.crowdannotationaggregator.models.BaseAnnotation;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 /**
  * @author b3rn475

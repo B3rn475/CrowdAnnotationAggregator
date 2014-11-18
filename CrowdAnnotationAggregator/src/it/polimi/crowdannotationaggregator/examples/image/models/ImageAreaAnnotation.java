@@ -7,12 +7,12 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator.image;
+package it.polimi.crowdannotationaggregator.examples.image.models;
+
+import it.polimi.crowdannotationaggregator.models.Annotation;
+import it.polimi.crowdannotationaggregator.models.Annotator;
 
 import java.util.Arrays;
-
-import it.polimi.crowdannotationaggregator.Annotation;
-import it.polimi.crowdannotationaggregator.Annotator;
 
 /**
  * @author B3rn475

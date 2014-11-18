@@ -7,7 +7,10 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator;
+package it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting;
+
+import it.polimi.crowdannotationaggregator.models.BaseAnnotation;
+import it.polimi.crowdannotationaggregator.models.Content;
 
 /**
  * This class is just a wrapper of the aggregation manager that force 
@@ -29,7 +32,7 @@ public abstract class BaseAggregationManager<A extends BaseAnnotation> extends A
 		super(listener, aggregatorFactory, estimatorFactory, threshold, maxIterations);
 	}
 
-	public interface OnBaseProcessListener<A extends BaseAnnotation> extends OnProcessListener<A, Content>{
+	public interface OnBaseProcessListener<A extends BaseAnnotation> extends AggregationManager.OnProcessListener<A, Content>{
 		
 	}
 }
