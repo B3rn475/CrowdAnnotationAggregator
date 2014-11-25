@@ -7,17 +7,19 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting;
+package it.polimi.crowdannotationaggregator.algorithms.ransac;
 
 import it.polimi.crowdannotationaggregator.models.Annotation;
 import it.polimi.crowdannotationaggregator.models.Content;
 
 /**
- * This class allow the AggregationManager to initialize an Aggregator without knowing the exact Class
+ * This class allow the AggregationManager to initialize an Aggregator without
+ * knowing the exact Class
  * 
  * @author b3rn475
- *
+ * 
  */
 public interface AggregatorFactory<A extends Annotation<C, ?>, C extends Content> {
-	public Aggregator<A,C> buildAggregator(Aggregator.OnAggregationCompletedListener<A,C> listener, C content);
+	public Aggregator<A, C> buildAggregator(
+			Aggregator.OnAggregationCompletedListener<A, C> listener, C content);
 }

@@ -7,7 +7,7 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting;
+package it.polimi.crowdannotationaggregator.algorithms.ransac;
 
 import it.polimi.crowdannotationaggregator.models.Annotation;
 import it.polimi.crowdannotationaggregator.models.Annotator;
@@ -19,6 +19,6 @@ import it.polimi.crowdannotationaggregator.models.Content;
  * @author b3rn475
  *
  */
-public interface CoherenceEstimatorFactory<A extends Annotation<C, ?>, C extends Content> {
-	public CoherenceEstimator<A,C> buildEstimator(CoherenceEstimator.OnEstimationCompletedListener<A,C> listener, Annotator annotator);
+public interface InlierEstimatorFactory<A extends Annotation<C, ?>, C extends Content> {
+	public InlierEstimator<A,C> buildEstimator(InlierEstimator.OnEstimationCompletedListener<A,C> listener, Annotator annotator);
 }

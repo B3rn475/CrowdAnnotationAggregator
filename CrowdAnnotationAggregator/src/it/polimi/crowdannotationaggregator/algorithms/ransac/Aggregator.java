@@ -7,7 +7,7 @@
  *
  * Distributed under the LGPL Licence
  */
-package it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting;
+package it.polimi.crowdannotationaggregator.algorithms.ransac;
 
 import it.polimi.crowdannotationaggregator.models.Annotation;
 import it.polimi.crowdannotationaggregator.models.Annotator;
@@ -16,10 +16,8 @@ import it.polimi.crowdannotationaggregator.models.Content;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 
 /**
  * Aggregator class that allow to aggregate annotations.
@@ -27,18 +25,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @param <A> AnnotationType
  */
-public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> implements Collection<A> {
+public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> implements Set<A> {
 	private final C content;
 
 	protected final OnAggregationCompletedListener<A, C> listener;
 
 	private final Collection<A> annotations = Collections.synchronizedCollection(new ArrayList<A>());
-
-	private Map<A, Double> weights = null;
-	
-	private boolean isFinal = false;
-	private long countDown = 0;
-	private final ConcurrentHashMap<Annotator, A> estimated = new ConcurrentHashMap<Annotator, A>();
 
 	/**
 	 * The Content the Aggregator is about
@@ -62,15 +54,6 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 		this.listener = listener;
 		this.content = content;
 	}
-
-	/**
-	 * The current weights that must be used in the computation.
-	 * 
-	 * @return the Map of the weights.
-	 */
-	protected Map<A, Double> getWeights(){
-		return weights;
-	}
 	
 	/**
 	 * Method that need to be implemented by specialized classes
@@ -81,99 +64,22 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * 
 	 * @param skip annotator to skip
 	 */
-	protected abstract void aggregate(Annotator skip);
-
-	/**
-	 * This method can be Overloaded by derived classes. 
-	 * It is called before the beginning of the aggregation.
-	 * It can be used to initialize assets needed during the aggregation phase.
-	 * It must call postInitializingAggregation() at the end of the initialization
-	 */
-	protected void initializingAggregation() {
-		postInitializingAggregation();
-	}
-	
-	/**
-	 * This method can be Overloaded by derived classes. 
-	 * It is called at the end of the aggregation.
-	 * It can be used to tear down the assets used.
-	 * It must call postEndingAggregation() at the end.
-	 */
-	protected void endingAggregation(){
-		postEndingAggregation();
-	}
-	
-	/**
-	 * This method must be called at the end of the initialization initializingAggregation(Map<A, Double> weights)
-	 * @param weights
-	 */
-	protected final void postInitializingAggregation(){
-		estimated.clear();
-		if (isFinal)
-		{
-			aggregate(Annotator.NONE);
-		} else {
-			for (A annotation : annotations) {
-				aggregate(annotation.getAnnotator());
-			}
-		}
-	}
-	
-	/**
-	 * This method must be called at the end of the tear down of the assets endingAggregation()
-	 */
-	protected final void postEndingAggregation(){
-		weights = null;
-		if (isFinal) {
-			listener.onFinalAggregationCompleted(this, estimated.get(Annotator.NONE));
-		} else {
-			HashMap<A, A> aggregatedAnnotations = new HashMap<A,A>();
-			for (A annotation : annotations) {
-				aggregatedAnnotations.put(annotation, estimated.get(annotation.getAnnotator()));
-			}
-			listener.onAggregationCompleted(this, aggregatedAnnotations);
-		}
-	}
+	public abstract void aggregate(final Set<Annotator> annotators);
 	
 	/**
 	 * Method to call at the end of each aggregation request
 	 * @param aggregatedAnnotation Aggregated annotation output of the process
 	 */
 	protected final void postAggregate(A aggregatedAnnotation) {
-		final boolean ending;
-		
-		estimated.put(aggregatedAnnotation.getAnnotator(), aggregatedAnnotation); // do this first to be sure to be the last
-		
-		synchronized (this) {
-			countDown--;
-			ending = countDown == 0;
-		}
-		
-		if (ending) {
-			endingAggregation();
-		}
+		listener.onAggregationCompleted(this, aggregatedAnnotation);
 	}
-
+	
 	/**
-	 * Request the aggregation the current annotations
-	 * @param weights
+	 * Method to call at the end of each aggregation request
+	 * @param aggregatedAnnotation Aggregated annotation output of the process
 	 */
-	public final void aggregate(Map<A, Double> weights) {
-		isFinal = false;
-		countDown = annotations.size();
-		this.weights = java.util.Collections.unmodifiableMap(weights);
-		initializingAggregation();
-	}
-
-	/**
-	 * Request the final aggregation based on all the annotations
-	 * @param weights
-	 */
-	public final void aggregateFinal(Map<A, Double> weights) {
-		isFinal = true;
-		countDown = 1;
-		this.weights = java.util.Collections.unmodifiableMap(weights);
-		initializingAggregation();
+	protected final void postAggregate() {
+		listener.onAggregationCompleted(this);
 	}
 
 	/**
@@ -183,11 +89,8 @@ public abstract class Aggregator<A extends Annotation<C, ?>, C extends Content> 
 	 * @param <A>
 	 */
 	public interface OnAggregationCompletedListener<A extends Annotation<C, ?>, C extends Content> {
-		public void onAggregationCompleted(Aggregator<A,C> sender,
-				Map<A,A> aggregatedAnnotations);
-
-		public void onFinalAggregationCompleted(Aggregator<A,C> sender,
-				A aggregatedAnnotation);
+		public void onAggregationCompleted(Aggregator<A,C> sender, A aggregatedAnnotation);
+		public void onAggregationCompleted(Aggregator<A,C> sender);
 	}
 
 	/**
