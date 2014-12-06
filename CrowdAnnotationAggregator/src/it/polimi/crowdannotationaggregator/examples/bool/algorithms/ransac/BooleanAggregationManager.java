@@ -10,9 +10,6 @@
 package it.polimi.crowdannotationaggregator.examples.bool.algorithms.ransac;
 
 import it.polimi.crowdannotationaggregator.algorithms.ransac.AggregationManager;
-import it.polimi.crowdannotationaggregator.algorithms.ransac.AggregatorFactory;
-import it.polimi.crowdannotationaggregator.algorithms.ransac.InlierEstimatorFactory;
-import it.polimi.crowdannotationaggregator.algorithms.ransac.AggregationManager.OnProcessListener;
 import it.polimi.crowdannotationaggregator.examples.bool.models.BooleanAnnotation;
 import it.polimi.crowdannotationaggregator.models.Content;
 
