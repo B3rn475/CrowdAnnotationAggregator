@@ -190,12 +190,8 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	}
 	
 	private void startFinalAggregation() {
-		model.clear();
 		isFinal = true;
-		countDown = aggregators.size();
-		for (Aggregator<A, C> aggregator : aggregators.values()) {
-			aggregator.aggregate(inliers);
-		}
+		startAggregation(inliers);
 	}
 
 	@Override
