@@ -170,10 +170,10 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		final int toSelect = (int) Math.floor(totalNumber * randomSelect);
 		final Set<Annotator> selected = new HashSet<Annotator>();
 		final Annotator[] annotators = new Annotator[totalNumber];
-		this.annotations.toArray(annotators);
+		this.annotators.toArray(annotators);
 		while (selected.size() < toSelect) {
 			final Annotator annotator = annotators[(int) Math.floor(Math
-					.random() * (totalNumber + 1))];
+					.random() * totalNumber)];
 			if (!selected.contains(annotator)) {
 				selected.add(annotator);
 			}
