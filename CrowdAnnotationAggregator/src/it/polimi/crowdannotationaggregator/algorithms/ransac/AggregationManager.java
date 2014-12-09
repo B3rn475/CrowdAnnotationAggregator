@@ -125,6 +125,8 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		isFinal = false;
 		step = 0;
 		annotators.clear();
+		aggregators.clear();
+		inlierEstimators.clear();
 
 		for (A annotation : annotations) {
 			final Annotator annotator = annotation.getAnnotator();
