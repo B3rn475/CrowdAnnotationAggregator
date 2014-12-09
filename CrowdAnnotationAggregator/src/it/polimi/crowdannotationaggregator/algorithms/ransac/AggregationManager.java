@@ -279,9 +279,6 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 
 		public void onAggregationEnded(AggregationManager<A, C> sender,
 				Map<C, A> aggregatedAnnotations);
-
-		public void onInvalidAnnotationsRemoved(Set<A> annotations,
-				Set<C> contents, Set<Annotator> annotators);
 	}
 
 	@Override
