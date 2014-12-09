@@ -134,7 +134,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 			}
 			final Aggregator<A, C> aggregator;
 			if (aggregators.containsKey(content)) {
-				aggregator = aggregators.get(annotator);
+				aggregator = aggregators.get(content);
 			} else {
 				aggregator = aggregatorsFactory.buildAggregator(this, content);
 				aggregators.put(content, aggregator);
