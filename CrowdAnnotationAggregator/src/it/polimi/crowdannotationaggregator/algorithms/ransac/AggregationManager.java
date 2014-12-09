@@ -253,7 +253,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		step++;
 
 		if (step < maxIterations) {
-			if (inliers.size() < minInliers) {
+			if (inliers.size() / (double) annotators.size() < minInliers) {
 				nextStep();
 				return;
 			}
