@@ -14,6 +14,7 @@ import it.polimi.crowdannotationaggregator.models.Annotator;
 import it.polimi.crowdannotationaggregator.models.Content;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -165,7 +166,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 
 		final Set<Annotator> goodUsers = selectRandomUsersSubset();
 
-		startAggregation(goodUsers);
+		startAggregation(Collections.unmodifiableSet(goodUsers));
 	}
 
 	private Set<Annotator> selectRandomUsersSubset() {
@@ -194,7 +195,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	
 	private void startFinalAggregation() {
 		isFinal = true;
-		startAggregation(inliers);
+		startAggregation(Collections.unmodifiableSet(inliers));
 	}
 
 	@Override
