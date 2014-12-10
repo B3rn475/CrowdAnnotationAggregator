@@ -40,6 +40,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	private final OnProcessListener<A, C> listener;
 
 	private final Set<A> annotations = new HashSet<A>();
+	private final Set<C> contents = new HashSet<C>();
 	private final Set<Annotator> annotators = new HashSet<Annotator>();
 	private boolean isWorking = false;
 	private final double minInliers;
@@ -126,6 +127,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		isFinal = false;
 		step = 0;
 		annotators.clear();
+		contents.clear();
 		aggregators.clear();
 		inlierEstimators.clear();
 
@@ -134,6 +136,9 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 			final C content = annotation.getContent();
 			if (!annotators.contains(annotator)) {
 				annotators.add(annotator);
+			}
+			if (!contents.contains(content)) {
+				contents.add(content);
 			}
 			final Aggregator<A, C> aggregator;
 			if (aggregators.containsKey(content)) {
@@ -214,7 +219,20 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		}
 		if (ended) {
 			if (isFinal){
-				listener.onAggregationEnded(this, model);
+				if (model.size() != contents.size()){
+					final Set<C> missingContents = new HashSet<C>();
+					for (C content : contents){
+						if (!model.containsKey(content)) {
+							missingContents.add(content);
+						}
+					}
+					countDown = missingContents.size();
+					for (C content : missingContents){
+						aggregators.get(content).aggregate(Collections.unmodifiableSet(annotators));
+					}
+				} else {
+					listener.onAggregationEnded(this, model);
+				}
 			} else {
 				startInliersEstimation();
 			}
