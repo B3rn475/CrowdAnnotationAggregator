@@ -25,11 +25,15 @@ public final class ImageAreaFactory implements InlierEstimatorFactory<ImageAreaA
 		AggregatorFactory<ImageAreaAnnotation, ImageContent> {
 	
 	private final double threshold;
+	private final double maxDistance;
 	
-	public ImageAreaFactory(double threshold){
+	public ImageAreaFactory(double maxDistance, double threshold){
 		if (threshold < 0 || threshold > 1)
 			throw new IllegalArgumentException("threshold must be between 0 and 1");
+		if (maxDistance < 0 || maxDistance > 1)
+			throw new IllegalArgumentException("maxDistance must be between 0 and 1");
 		this.threshold = threshold;
+		this.maxDistance = maxDistance;
 	}
 
 	@Override
@@ -43,7 +47,7 @@ public final class ImageAreaFactory implements InlierEstimatorFactory<ImageAreaA
 	public InlierEstimator<ImageAreaAnnotation, ImageContent> buildEstimator(
 			InlierEstimator.OnEstimationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			Annotator annotator) {
-		return new ImageAreaInlierEstimator(listener, annotator, threshold);
+		return new ImageAreaInlierEstimator(listener, annotator, maxDistance, threshold);
 	}
 
 }

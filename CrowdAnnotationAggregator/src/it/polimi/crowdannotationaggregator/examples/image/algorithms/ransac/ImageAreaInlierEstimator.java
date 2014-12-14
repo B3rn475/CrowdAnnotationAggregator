@@ -10,15 +10,20 @@ import it.polimi.crowdannotationaggregator.models.Annotator;
 public class ImageAreaInlierEstimator extends InlierEstimator<ImageAreaAnnotation, ImageContent> {
 
 	private final double threshold;
+	private final double maxDistance;
 	
 	protected ImageAreaInlierEstimator(
 			InlierEstimator.OnEstimationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			Annotator annotator,
+			double maxDistance,
 			double threshold) {
 		super(listener, annotator);
 		if (threshold < 0 || threshold > 1)
 			throw new IllegalArgumentException("threshold must be between 0 and 1");
+		if (maxDistance < 0 || maxDistance > 1)
+			throw new IllegalArgumentException("maxDistance must be between 0 and 1");
 		this.threshold = threshold;
+		this.maxDistance = maxDistance;
 	}
 
 	@Override
@@ -42,7 +47,7 @@ public class ImageAreaInlierEstimator extends InlierEstimator<ImageAreaAnnotatio
 				}
 				final double dIntersectionArea = intersectionArea;
 				final double dUnionArea = unionArea;
-				if (dIntersectionArea / dUnionArea > threshold){
+				if (dIntersectionArea / dUnionArea > maxDistance){
 					ok++;
 				} else {
 					ko++;
@@ -52,7 +57,7 @@ public class ImageAreaInlierEstimator extends InlierEstimator<ImageAreaAnnotatio
 		if (ok == 0 && ko == 0){
 			postEstimate(false);
 		} else {
-			postEstimate(ok > (ok + ko) * 2 / 3);
+			postEstimate(ok > (ok + ko) * threshold);
 		}
 	}
 
