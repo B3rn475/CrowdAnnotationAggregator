@@ -13,6 +13,7 @@ import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.Agg
 import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.AggregatorFactory;
 import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.CoherenceEstimator;
 import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.CoherenceEstimatorFactory;
+import it.polimi.crowdannotationaggregator.examples.image.algorithms.weightedmajorityvoting.ImageAreaAggregator;
 import it.polimi.crowdannotationaggregator.examples.image.models.ImageAreaAnnotation;
 import it.polimi.crowdannotationaggregator.examples.image.models.ImageContent;
 import it.polimi.crowdannotationaggregator.models.Annotator;
@@ -28,7 +29,7 @@ public final class ImageAreaFactory implements CoherenceEstimatorFactory<ImageAr
 	public Aggregator<ImageAreaAnnotation, ImageContent> buildAggregator(
 			Aggregator.OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			ImageContent content) {
-		return null;
+		return new ImageAreaAggregator(listener, content);
 	}
 
 	@Override
