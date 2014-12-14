@@ -39,13 +39,13 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 	 * @param content
 	 * @param annotator
 	 */
-	public ImageAreaAnnotation(ImageContent content, Annotator annotator, int width, int height, boolean[] image) {
+	public ImageAreaAnnotation(ImageContent content, Annotator annotator, boolean[] image) {
 		super(content, annotator);
 		if (image == null)
 			throw new IllegalArgumentException("The image cannot be empty");
 		if (image.length != content.getWidth() * content.getHeight())
 			throw new IllegalArgumentException("Image Size mismatch");
-		this.image = new double[width*height];
+		this.image = new double[content.getWidth() * content.getHeight()];
 		final int length = content.getWidth() * content.getHeight();
 		for (int i=0; i<length; i++){
 			this.image[i] = image[i]?1:-1;
