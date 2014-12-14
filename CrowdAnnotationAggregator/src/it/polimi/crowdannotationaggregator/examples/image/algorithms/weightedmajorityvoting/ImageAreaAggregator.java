@@ -26,7 +26,7 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 	 * @param content
 	 * @param container
 	 */
-	protected ImageAreaAggregator(
+	public ImageAreaAggregator(
 			OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			ImageContent content) {
 		super(listener, content);
