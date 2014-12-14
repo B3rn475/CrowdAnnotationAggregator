@@ -64,7 +64,15 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 		return getPixelValue(y+x*getContent().getWidth());
 	}
 	
+	public boolean getPixelValue(int x, int y, double threshold){
+		return getPixelValue(y+x*getContent().getWidth(), threshold);
+	}
+	
 	public boolean getPixelValue(int index){
-		return image[index] >= 0;
+		return getPixelValue(index, 0);
+	}
+	
+	public boolean getPixelValue(int index, double threshold){
+		return image[index] >= threshold;
 	}
 }
