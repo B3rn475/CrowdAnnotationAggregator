@@ -69,7 +69,7 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 	}
 	
 	public boolean getPixelValue(int index){
-		return getPixelValue(index, 0);
+		return getPixelValue(index, 0.0);
 	}
 	
 	public boolean getPixelValue(int index, double threshold){
