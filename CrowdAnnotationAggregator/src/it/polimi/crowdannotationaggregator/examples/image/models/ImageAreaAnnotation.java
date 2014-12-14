@@ -30,7 +30,7 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 		super(content, annotator);
 		if (image == null)
 			throw new IllegalArgumentException("The image cannot be empty");
-		if (image.length != content.width * content.height)
+		if (image.length != content.getWidth() * content.getHeight())
 			throw new IllegalArgumentException("Image Size mismatch");
 		this.image = Arrays.copyOf(image, image.length);
 	}
@@ -43,17 +43,17 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 		super(content, annotator);
 		if (image == null)
 			throw new IllegalArgumentException("The image cannot be empty");
-		if (image.length != content.width * content.height)
+		if (image.length != content.getWidth() * content.getHeight())
 			throw new IllegalArgumentException("Image Size mismatch");
 		this.image = new double[width*height];
-		final int length = content.width * content.height;
+		final int length = content.getWidth() * content.getHeight();
 		for (int i=0; i<length; i++){
 			this.image[i] = image[i]?1:-1;
 		}
 	}
 	
 	public double getPixel(int x, int y){
-		return getPixel(y+x*getContent().height);
+		return getPixel(y+x*getContent().getWidth());
 	}
 	
 	public double getPixel(int index){
@@ -61,7 +61,7 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 	}
 	
 	public boolean getPixelValue(int x, int y){
-		return getPixelValue(y+x*getContent().height);
+		return getPixelValue(y+x*getContent().getWidth());
 	}
 	
 	public boolean getPixelValue(int index){

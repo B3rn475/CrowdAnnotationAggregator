@@ -13,8 +13,8 @@ import it.polimi.crowdannotationaggregator.models.Content;
 
 public class ImageContent extends Content {
 
-	public final int height;
-	public final int width;
+	private final int height;
+	private final int width;
 	
 	public ImageContent(int id, int width, int height) {
 		super(id);
@@ -22,6 +22,14 @@ public class ImageContent extends Content {
 			throw new IllegalArgumentException("The image cannot have a zero or negative size");
 		this.width = width;
 		this.height = height;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	public int getWidth() {
+		return width;
 	}
 
 }

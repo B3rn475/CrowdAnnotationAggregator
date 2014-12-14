@@ -30,7 +30,7 @@ public final class ImageAreaCoherenceEstimator extends LinearCoherenceEstimator<
 	protected void comparePair(final ImageAreaAnnotation annotation, final ImageAreaAnnotation estimation) {
 		int unionArea = 0;
 		int intersectionArea = 0;
-		final int length = annotation.getContent().width * annotation.getContent().height;
+		final int length = annotation.getContent().getWidth() * annotation.getContent().getHeight();
 		for (int i = 0; i < length; i++){
 			if (annotation.getPixelValue(i) && estimation.getPixelValue(i)){
 				intersectionArea++;
