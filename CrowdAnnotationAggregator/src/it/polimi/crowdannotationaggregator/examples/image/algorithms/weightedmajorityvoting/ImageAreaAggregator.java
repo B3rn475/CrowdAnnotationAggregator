@@ -9,6 +9,10 @@
  */
 package it.polimi.crowdannotationaggregator.examples.image.algorithms.weightedmajorityvoting;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.IntToDoubleFunction;
+
 import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.LinearAggregator;
 import it.polimi.crowdannotationaggregator.examples.image.models.ImageAreaAnnotation;
 import it.polimi.crowdannotationaggregator.examples.image.models.ImageContent;
@@ -38,18 +42,20 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 		final double[] totalSum = new double[length];
 		final double totalWeight = getTotalWeight();
 		
-		for (ImageAreaAnnotation a : this){
-			final double weight = getWeights().get(a);
-			for (int i=0; i<length; i++)
-			{
-				totalSum[i] += a.getPixel(i) * weight;
-			}
-		}
+		final Collection<ImageAreaAnnotation> self = this;
 		
-		for (int i=0; i<length; i++)
-		{
-			totalSum[i] /= totalWeight;
-		}
+		Arrays.parallelSetAll(totalSum, new IntToDoubleFunction() {
+			
+			@Override
+			public double applyAsDouble(int i) {
+				double ret = 0;
+				for (ImageAreaAnnotation a : self){
+					final double weight = getWeights().get(a);
+					ret += a.getPixel(i) * weight;
+				}
+				return ret / totalWeight;
+			}
+		});
 		
 		postSumAllAnnotations(new ImageAreaAnnotation(getContent(), Annotator.NONE, totalSum));
 	}
@@ -63,10 +69,13 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 		final double[] totalSum = new double[length];
 		final double totalWeight = getTotalWeight();
 		
-		for (int i=0; i<length; i++)
-		{
-				totalSum[i] = (aggregatedAnnotation.getPixel(i) * totalWeight - annotation.getPixel(i) * weight) / (totalWeight - weight);
-		}
+		Arrays.parallelSetAll(totalSum, new IntToDoubleFunction() {
+			
+			@Override
+			public double applyAsDouble(int i) {
+				return (aggregatedAnnotation.getPixel(i) * totalWeight - annotation.getPixel(i) * weight) / (totalWeight - weight);
+			}
+		});
 		
 		postSubtractAnnotation(new ImageAreaAnnotation(getContent(), annotation.getAnnotator(), totalSum));
 	}

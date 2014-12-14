@@ -1,7 +1,9 @@
 package it.polimi.crowdannotationaggregator.examples.image.algorithms.ransac;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
+import java.util.function.IntToDoubleFunction;
 
 import it.polimi.crowdannotationaggregator.algorithms.ransac.Aggregator;
 import it.polimi.crowdannotationaggregator.examples.image.models.ImageAreaAnnotation;
@@ -24,24 +26,33 @@ public class ImageAreaAggregator extends Aggregator<ImageAreaAnnotation, ImageCo
 			final int length = getContent().getHeight() * getContent().getWidth();
 			double[] vector = new double[length];
 			
-			Arrays.fill(vector, 0);
-			
 			int n = 0;
 			for (ImageAreaAnnotation annotation : this){
 				if (!annotators.contains(annotation.getAnnotator()))
 					continue;
-				for (int i = 0; i < length; i++){
-					vector[i] += annotation.getPixel(i);
-				}
 				n++;
 			}
 			
 			if (n == 0){
 				postAggregate();
 			} else {
-				for (int i = 0; i < length; i++){
-					vector[i] /= n;
-				}
+				
+				final Collection<ImageAreaAnnotation> self = this;
+				final int tot = n;
+				
+				Arrays.parallelSetAll(vector, new IntToDoubleFunction() {
+					
+					@Override
+					public double applyAsDouble(int i) {
+						double ret = 0;
+						for (ImageAreaAnnotation annotation : self){
+							if (!annotators.contains(annotation.getAnnotator()))
+								continue;
+							ret += annotation.getPixel(i);
+						}
+						return ret / tot;
+					}
+				});
 				postAggregate(new ImageAreaAnnotation(getContent(), Annotator.NONE, vector));
 			}
 		}
