@@ -24,12 +24,6 @@ import it.polimi.crowdannotationaggregator.models.Annotator;
 public final class ImageAreaFactory implements CoherenceEstimatorFactory<ImageAreaAnnotation, ImageContent>,
 		AggregatorFactory<ImageAreaAnnotation, ImageContent> {
 
-	/**
-	 * 
-	 */
-	public ImageAreaFactory() {
-	}
-
 	@Override
 	public Aggregator<ImageAreaAnnotation, ImageContent> buildAggregator(
 			Aggregator.OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
