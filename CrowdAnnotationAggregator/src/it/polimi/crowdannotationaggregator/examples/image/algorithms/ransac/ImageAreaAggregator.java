@@ -23,9 +23,6 @@ public class ImageAreaAggregator extends Aggregator<ImageAreaAnnotation, ImageCo
 		if (annotators.size() == 0){
 			postAggregate();
 		} else {
-			final int length = getContent().getHeight() * getContent().getWidth();
-			double[] vector = new double[length];
-			
 			int n = 0;
 			for (ImageAreaAnnotation annotation : this){
 				if (!annotators.contains(annotation.getAnnotator()))
@@ -36,24 +33,29 @@ public class ImageAreaAggregator extends Aggregator<ImageAreaAnnotation, ImageCo
 			if (n == 0){
 				postAggregate();
 			} else {
-				
-				final Collection<ImageAreaAnnotation> self = this;
-				final int tot = n;
-				
-				Arrays.parallelSetAll(vector, new IntToDoubleFunction() {
+				final ImageAreaAnnotation annotation;
+				{
+					final int length = getContent().getHeight() * getContent().getWidth();
+					final double[] vector = new double[length];
+					final Collection<ImageAreaAnnotation> self = this;
+					final int tot = n;
 					
-					@Override
-					public double applyAsDouble(int i) {
-						double ret = 0;
-						for (ImageAreaAnnotation annotation : self){
-							if (!annotators.contains(annotation.getAnnotator()))
-								continue;
-							ret += annotation.getPixel(i);
+					Arrays.parallelSetAll(vector, new IntToDoubleFunction() {
+						
+						@Override
+						public double applyAsDouble(int i) {
+							double ret = 0;
+							for (ImageAreaAnnotation annotation : self){
+								if (!annotators.contains(annotation.getAnnotator()))
+									continue;
+								ret += annotation.getPixel(i);
+							}
+							return ret / tot;
 						}
-						return ret / tot;
-					}
-				});
-				postAggregate(new ImageAreaAnnotation(getContent(), Annotator.NONE, vector));
+					});
+					annotation = new ImageAreaAnnotation(getContent(), Annotator.NONE, vector);
+				}
+				postAggregate(annotation);
 			}
 		}
 	}

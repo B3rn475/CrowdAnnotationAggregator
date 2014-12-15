@@ -38,26 +38,30 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 
 	@Override
 	protected void sumAllAnnotations() {
-		final int length = getContent().getWidth() * getContent().getHeight();
-		final double[] totalSum = new double[length];
-		final double totalWeight = getTotalWeight();
-		
-		final Collection<ImageAreaAnnotation> self = this;
-		
-		Arrays.parallelSetAll(totalSum, new IntToDoubleFunction() {
+		final ImageAreaAnnotation annotation;
+		{
+			final int length = getContent().getWidth() * getContent().getHeight();
+			final double[] totalSum = new double[length];
+			final double totalWeight = getTotalWeight();
 			
-			@Override
-			public double applyAsDouble(int i) {
-				double ret = 0;
-				for (ImageAreaAnnotation a : self){
-					final double weight = getWeights().get(a);
-					ret += a.getPixel(i) * weight;
+			final Collection<ImageAreaAnnotation> self = this;
+			
+			Arrays.parallelSetAll(totalSum, new IntToDoubleFunction() {
+				
+				@Override
+				public double applyAsDouble(int i) {
+					double ret = 0;
+					for (ImageAreaAnnotation a : self){
+						final double weight = getWeights().get(a);
+						ret += a.getPixel(i) * weight;
+					}
+					return ret / totalWeight;
 				}
-				return ret / totalWeight;
-			}
-		});
+			});
+			annotation = new ImageAreaAnnotation(getContent(), Annotator.NONE, totalSum);
+		}
 		
-		postSumAllAnnotations(new ImageAreaAnnotation(getContent(), Annotator.NONE, totalSum));
+		postSumAllAnnotations(annotation);
 	}
 
 	@Override
@@ -65,19 +69,22 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 			final ImageAreaAnnotation aggregatedAnnotation,
 			final ImageAreaAnnotation annotation,
 			final double weight) {
-		final int length = getContent().getWidth() * getContent().getHeight();
-		final double[] totalSum = new double[length];
-		final double totalWeight = getTotalWeight();
-		
-		Arrays.parallelSetAll(totalSum, new IntToDoubleFunction() {
+		final ImageAreaAnnotation subtracted;
+		{
+			final int length = getContent().getWidth() * getContent().getHeight();
+			final double[] totalSum = new double[length];
+			final double totalWeight = getTotalWeight();
 			
-			@Override
-			public double applyAsDouble(int i) {
-				return (aggregatedAnnotation.getPixel(i) * totalWeight - annotation.getPixel(i) * weight) / (totalWeight - weight);
-			}
-		});
-		
-		postSubtractAnnotation(new ImageAreaAnnotation(getContent(), annotation.getAnnotator(), totalSum));
+			Arrays.parallelSetAll(totalSum, new IntToDoubleFunction() {
+				
+				@Override
+				public double applyAsDouble(int i) {
+					return (aggregatedAnnotation.getPixel(i) * totalWeight - annotation.getPixel(i) * weight) / (totalWeight - weight);
+				}
+			});
+			subtracted = new ImageAreaAnnotation(getContent(), annotation.getAnnotator(), totalSum);
+		}
+		postSubtractAnnotation(subtracted);
 	}
 
 }

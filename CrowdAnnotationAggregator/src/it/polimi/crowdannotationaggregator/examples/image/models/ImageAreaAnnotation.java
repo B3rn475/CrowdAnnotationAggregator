@@ -20,13 +20,21 @@ import java.util.Arrays;
  */
 public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 
-	private final double[] image;
+	private final float[] image;
 	
 	/**
 	 * @param content
 	 * @param annotator
 	 */
 	public ImageAreaAnnotation(ImageContent content, Annotator annotator, double[] image) {
+		this(content, annotator, toFloatArray(image));
+	}
+	
+	/**
+	 * @param content
+	 * @param annotator
+	 */
+	public ImageAreaAnnotation(ImageContent content, Annotator annotator, float[] image) {
 		super(content, annotator);
 		if (image == null)
 			throw new IllegalArgumentException("The image cannot be empty");
@@ -45,18 +53,18 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 			throw new IllegalArgumentException("The image cannot be empty");
 		if (image.length != content.getWidth() * content.getHeight())
 			throw new IllegalArgumentException("Image Size mismatch");
-		this.image = new double[content.getWidth() * content.getHeight()];
+		this.image = new float[content.getWidth() * content.getHeight()];
 		final int length = content.getWidth() * content.getHeight();
 		for (int i=0; i<length; i++){
 			this.image[i] = image[i]?1:-1;
 		}
 	}
 	
-	public double getPixel(int x, int y){
+	public float getPixel(int x, int y){
 		return getPixel(y+x*getContent().getWidth());
 	}
 	
-	public double getPixel(int index){
+	public float getPixel(int index){
 		return image[index];
 	}
 	
@@ -64,15 +72,27 @@ public class ImageAreaAnnotation extends Annotation<ImageContent, Annotator> {
 		return getPixelValue(y+x*getContent().getWidth());
 	}
 	
-	public boolean getPixelValue(int x, int y, double threshold){
+	public boolean getPixelValue(int x, int y, float threshold){
 		return getPixelValue(y+x*getContent().getWidth(), threshold);
 	}
 	
 	public boolean getPixelValue(int index){
-		return getPixelValue(index, 0.0);
+		return getPixelValue(index, 0.0f);
 	}
 	
 	public boolean getPixelValue(int index, double threshold){
+		return getPixelValue(index, (float) threshold);
+	}
+	
+	public boolean getPixelValue(int index, float threshold){
 		return image[index] >= threshold;
+	}
+	
+	private static float[] toFloatArray(double[] input){
+		float[] output = new float[input.length];
+		for (int i = 0; i < input.length; i++){
+			output[i] = (float) input[i];
+		}
+		return output;
 	}
 }
