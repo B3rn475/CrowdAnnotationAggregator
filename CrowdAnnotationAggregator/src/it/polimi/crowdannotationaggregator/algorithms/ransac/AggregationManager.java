@@ -54,6 +54,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	private final Map<Annotator, InlierEstimator<A, C>> inlierEstimators = new HashMap<Annotator, InlierEstimator<A, C>>();
 
 	private final Set<Annotator> inliers = new HashSet<Annotator>();
+	private final Set<Annotator> bestInliers = new HashSet<Annotator>();
 	
 	private int step = 0;
 	private boolean isFinal = false;
@@ -129,6 +130,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		annotators.clear();
 		contents.clear();
 		aggregators.clear();
+		bestInliers.clear();
 		inlierEstimators.clear();
 
 		for (A annotation : annotations) {
@@ -167,7 +169,6 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	 */
 	private void nextStep() {
 		listener.onStepInitiated(this, step);
-		inliers.clear();
 
 		final Set<Annotator> goodUsers = selectRandomUsersSubset();
 
@@ -200,7 +201,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 	
 	private void startFinalAggregation() {
 		isFinal = true;
-		startAggregation(Collections.unmodifiableSet(inliers));
+		startAggregation(Collections.unmodifiableSet(bestInliers));
 	}
 
 	@Override
@@ -231,7 +232,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 						aggregators.get(content).aggregate(Collections.unmodifiableSet(annotators));
 					}
 				} else {
-					listener.onAggregationEnded(this, model);
+					listener.onAggregationEnded(this, model, bestInliers);
 				}
 			} else {
 				startInliersEstimation();
@@ -269,9 +270,15 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 		listener.onStepCompleted(this, step, inliers.size());
 
 		step++;
+		
+		if (inliers.size() > bestInliers.size()){
+			bestInliers.clear();
+			bestInliers.addAll(inliers);
+		}
+		inliers.clear();
 
 		if (step < maxIterations) {
-			if (inliers.size() / (double) annotators.size() < minInliers) {
+			if (bestInliers.size() / (double) annotators.size() < minInliers) {
 				nextStep();
 				return;
 			}
@@ -296,7 +303,7 @@ public class AggregationManager<A extends Annotation<C, ?>, C extends Content>
 				int inliers);
 
 		public void onAggregationEnded(AggregationManager<A, C> sender,
-				Map<C, A> aggregatedAnnotations);
+				Map<C, A> aggregatedAnnotations, Set<Annotator> inliers);
 	}
 
 	@Override
