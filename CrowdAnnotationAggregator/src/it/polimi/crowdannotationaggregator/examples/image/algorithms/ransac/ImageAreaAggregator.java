@@ -19,7 +19,7 @@ public class ImageAreaAggregator extends Aggregator<ImageAreaAnnotation, ImageCo
 	}
 
 	@Override
-	public void aggregate(Set<Annotator> annotators) {
+	public void aggregate(final Set<Annotator> annotators) {
 		if (annotators.size() == 0){
 			postAggregate();
 		} else {
