@@ -9,6 +9,8 @@
  */
 package it.polimi.crowdannotationaggregator.examples.image.algorithms.weightedmajorityvoting;
 
+import java.util.concurrent.ExecutorService;
+
 import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.LinearCoherenceEstimator;
 import it.polimi.crowdannotationaggregator.examples.image.models.ImageAreaAnnotation;
 import it.polimi.crowdannotationaggregator.examples.image.models.ImageContent;
@@ -20,14 +22,40 @@ import it.polimi.crowdannotationaggregator.models.Annotator;
  */
 public final class ImageAreaCoherenceEstimator extends LinearCoherenceEstimator<ImageAreaAnnotation, ImageContent> {
 
+	private final ExecutorService executor;
+	
+	public ImageAreaCoherenceEstimator(
+			OnEstimationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
+			Annotator annotator,
+			ExecutorService executor) {
+		super(listener, annotator);
+		this.executor = executor;
+	}
+	
 	public ImageAreaCoherenceEstimator(
 			OnEstimationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			Annotator annotator) {
 		super(listener, annotator);
+		this.executor = null;
 	}
 
 	@Override
 	protected void comparePair(final ImageAreaAnnotation annotation, final ImageAreaAnnotation estimation) {
+		if (executor == null){
+			comparePairInternal(annotation, estimation);
+		} else {
+			final ImageAreaCoherenceEstimator self = this;
+			executor.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					self.comparePairInternal(annotation, estimation);
+				}
+			});
+		}
+	}
+	
+	private void comparePairInternal(final ImageAreaAnnotation annotation, final ImageAreaAnnotation estimation) {
 		int unionArea = 0;
 		int intersectionArea = 0;
 		final int length = annotation.getContent().getWidth() * annotation.getContent().getHeight();

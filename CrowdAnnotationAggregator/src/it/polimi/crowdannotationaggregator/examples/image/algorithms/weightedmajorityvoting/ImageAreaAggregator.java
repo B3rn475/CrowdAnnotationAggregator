@@ -11,6 +11,7 @@ package it.polimi.crowdannotationaggregator.examples.image.algorithms.weightedma
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
 import java.util.function.IntToDoubleFunction;
 
 import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.LinearAggregator;
@@ -24,6 +25,8 @@ import it.polimi.crowdannotationaggregator.models.Annotator;
  */
 public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotation, ImageContent> {
 	
+	private final ExecutorService executor;
+	
 	/**
 	 * 
 	 * @param listener
@@ -32,12 +35,36 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 	 */
 	public ImageAreaAggregator(
 			OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
+			ImageContent content,
+			ExecutorService executor) {
+		super(listener, content);
+		this.executor = executor;
+	}
+	
+	public ImageAreaAggregator(
+			OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			ImageContent content) {
 		super(listener, content);
+		this.executor = null;
 	}
 
 	@Override
 	protected void sumAllAnnotations() {
+		if (executor == null){
+			sumAllAnnotationsInternal();
+		} else {
+			final ImageAreaAggregator self = this;
+			executor.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					self.sumAllAnnotationsInternal();
+				}
+			});
+		}
+	}
+		
+	private void sumAllAnnotationsInternal() {
 		final ImageAreaAnnotation annotation;
 		{
 			final int length = getContent().getWidth() * getContent().getHeight();
@@ -66,6 +93,24 @@ public final class ImageAreaAggregator extends LinearAggregator<ImageAreaAnnotat
 
 	@Override
 	protected void subtractAnnotation(
+			final ImageAreaAnnotation aggregatedAnnotation,
+			final ImageAreaAnnotation annotation,
+			final double weight) {
+		if (executor == null){
+			subtractAnnotationInternal(aggregatedAnnotation, annotation, weight);
+		} else {
+			final ImageAreaAggregator self = this;
+			executor.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					self.subtractAnnotationInternal(aggregatedAnnotation, annotation, weight);
+				}
+			});
+		}
+	}
+	
+	private void subtractAnnotationInternal(
 			final ImageAreaAnnotation aggregatedAnnotation,
 			final ImageAreaAnnotation annotation,
 			final double weight) {

@@ -9,6 +9,8 @@
  */
 package it.polimi.crowdannotationaggregator.examples.image.algorithms.weightedmajorityvoting;
 
+import java.util.concurrent.ExecutorService;
+
 import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.Aggregator;
 import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.AggregatorFactory;
 import it.polimi.crowdannotationaggregator.algorithms.weightedmajorityvoting.CoherenceEstimator;
@@ -25,18 +27,29 @@ import it.polimi.crowdannotationaggregator.models.Annotator;
 public final class ImageAreaFactory implements CoherenceEstimatorFactory<ImageAreaAnnotation, ImageContent>,
 		AggregatorFactory<ImageAreaAnnotation, ImageContent> {
 
+	private final ExecutorService executor;
+	
+	public ImageAreaFactory(ExecutorService executor){
+		this.executor = executor;
+	}
+	
+	public ImageAreaFactory(){
+		this.executor = null;
+	}
+	
+	
 	@Override
 	public Aggregator<ImageAreaAnnotation, ImageContent> buildAggregator(
 			Aggregator.OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			ImageContent content) {
-		return new ImageAreaAggregator(listener, content);
+		return new ImageAreaAggregator(listener, content, executor);
 	}
 
 	@Override
 	public CoherenceEstimator<ImageAreaAnnotation, ImageContent> buildEstimator(
 			CoherenceEstimator.OnEstimationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			Annotator annotator) {
-		return new ImageAreaCoherenceEstimator(listener, annotator);
+		return new ImageAreaCoherenceEstimator(listener, annotator, executor);
 	}
 
 }

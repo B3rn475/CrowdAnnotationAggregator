@@ -1,6 +1,7 @@
 package it.polimi.crowdannotationaggregator.examples.image.algorithms.ransac;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import it.polimi.crowdannotationaggregator.algorithms.ransac.InlierEstimator;
 import it.polimi.crowdannotationaggregator.examples.image.models.ImageAreaAnnotation;
@@ -11,6 +12,24 @@ public class ImageAreaInlierEstimator extends InlierEstimator<ImageAreaAnnotatio
 
 	private final double threshold;
 	private final double maxDistance;
+	
+	private final ExecutorService executor;
+	
+	protected ImageAreaInlierEstimator(
+			InlierEstimator.OnEstimationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
+			Annotator annotator,
+			double maxDistance,
+			double threshold,
+			ExecutorService executor) {
+		super(listener, annotator);
+		if (threshold < 0 || threshold > 1)
+			throw new IllegalArgumentException("threshold must be between 0 and 1");
+		if (maxDistance < 0 || maxDistance > 1)
+			throw new IllegalArgumentException("maxDistance must be between 0 and 1");
+		this.threshold = threshold;
+		this.maxDistance = maxDistance;
+		this.executor = executor;
+	}
 	
 	protected ImageAreaInlierEstimator(
 			InlierEstimator.OnEstimationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
@@ -24,10 +43,26 @@ public class ImageAreaInlierEstimator extends InlierEstimator<ImageAreaAnnotatio
 			throw new IllegalArgumentException("maxDistance must be between 0 and 1");
 		this.threshold = threshold;
 		this.maxDistance = maxDistance;
+		this.executor = null;
 	}
 
 	@Override
 	public void estimate(Map<ImageContent, ImageAreaAnnotation> model) {
+		if (executor == null){
+			estimateInternal(model);
+		} else {
+			final ImageAreaInlierEstimator self = this;
+			executor.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					self.estimateInternal(model);
+				}
+			});
+		}
+	}
+	
+	private void estimateInternal(Map<ImageContent, ImageAreaAnnotation> model) {
 		int ok = 0;
 		int ko = 0;
 		for (final ImageAreaAnnotation annotation : this){

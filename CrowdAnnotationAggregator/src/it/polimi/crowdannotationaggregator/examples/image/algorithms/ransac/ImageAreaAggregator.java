@@ -3,6 +3,7 @@ package it.polimi.crowdannotationaggregator.examples.image.algorithms.ransac;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.function.IntToDoubleFunction;
 
 import it.polimi.crowdannotationaggregator.algorithms.ransac.Aggregator;
@@ -11,15 +12,40 @@ import it.polimi.crowdannotationaggregator.examples.image.models.ImageContent;
 import it.polimi.crowdannotationaggregator.models.Annotator;
 
 public class ImageAreaAggregator extends Aggregator<ImageAreaAnnotation, ImageContent> {
+	
+	private final ExecutorService executor;
 
+	protected ImageAreaAggregator(
+			Aggregator.OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
+			ImageContent content, ExecutorService executor) {
+		super(listener, content);
+		this.executor = executor;
+	}
+	
 	protected ImageAreaAggregator(
 			Aggregator.OnAggregationCompletedListener<ImageAreaAnnotation, ImageContent> listener,
 			ImageContent content) {
 		super(listener, content);
+		this.executor = null;
 	}
 
 	@Override
 	public void aggregate(final Set<Annotator> annotators) {
+		if (executor == null){
+			aggregateInternal(annotators);
+		} else {
+			final ImageAreaAggregator self = this; 
+			executor.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					self.aggregateInternal(annotators);
+				}
+			});
+		}
+	}
+	
+	private void aggregateInternal(final Set<Annotator> annotators) {
 		if (annotators.size() == 0){
 			postAggregate();
 		} else {
