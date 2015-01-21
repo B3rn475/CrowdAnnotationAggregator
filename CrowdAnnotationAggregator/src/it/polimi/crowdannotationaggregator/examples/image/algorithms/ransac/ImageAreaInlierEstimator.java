@@ -47,7 +47,7 @@ public class ImageAreaInlierEstimator extends InlierEstimator<ImageAreaAnnotatio
 	}
 
 	@Override
-	public void estimate(Map<ImageContent, ImageAreaAnnotation> model) {
+	public void estimate(final Map<ImageContent, ImageAreaAnnotation> model) {
 		if (executor == null){
 			estimateInternal(model);
 		} else {
